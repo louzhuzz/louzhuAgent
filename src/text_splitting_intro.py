@@ -18,7 +18,7 @@ def split_documents(
     chunks: list[Document] = []
     step = chunk_size - chunk_overlap
 
-    for document in documents:
+    for document in documents: # 对每个文档进行切分
         text = document.page_content
         start = 0
         chunk_index = 0
@@ -27,7 +27,7 @@ def split_documents(
             end = start + chunk_size
             chunk_text = text[start:end].strip()
             if chunk_text:
-                chunk_metadata = {
+                chunk_metadata = { # 保留原文档的 metadata，并添加 chunk 相关信息
                     **document.metadata,
                     "chunk_index": chunk_index,
                     "chunk_start": start,
@@ -35,7 +35,7 @@ def split_documents(
                 }
                 chunks.append(Document(page_content=chunk_text, metadata=chunk_metadata))
 
-            start += step
+            start += step # 移动到下一个 chunk 的起始位置
             chunk_index += 1
 
     return chunks
