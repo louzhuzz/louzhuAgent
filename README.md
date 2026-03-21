@@ -47,6 +47,7 @@
 - 已新增独立的 LCEL/Runnable 入门示例
 - 已新增 RunnableParallel 并行链示例
 - 已新增 RAG 文档加载示例
+- 已新增 RAG 文本切分示例
 
 ## 运行方式
 
