@@ -1,25 +1,25 @@
 import sys
 
+from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 
 from config import load_settings
-from document_loading_intro import KNOWLEDGE_DIR, load_markdown_documents
 from output_parsers import parse_text_output
-from retriever_intro import SimpleRetriever
-from text_splitting_intro import split_documents
-from vector_store_intro import InMemoryVectorStore
+from real_retriever_helpers import RealRetriever, build_real_vector_store
 
 
-def build_context(documents: list) -> str: 
-    parts: list[str] = [] # 用于存储每个文档片段的字符串列表
+def build_context(documents: list[Document]) -> str:
+    """把检索到的文档片段拼成可直接放进 Prompt 的上下文字符串。"""
+    parts: list[str] = []
     for index, document in enumerate(documents, start=1):
-        source = document.metadata.get("source", "unknown") # 获取文档的来源信息，如果没有则默认为 "unknown"
+        source = document.metadata.get("source", "unknown")
         content = document.page_content.strip()
         parts.append(f"[片段 {index}] 来源: {source}\n{content}")
     return "\n\n".join(parts)
 
 
 def build_rag_prompt(question: str, context: str) -> str:
+    """构造 RAG v1 的回答提示词。"""
     return f"""
 你是一个基于本地知识库回答问题的学习助理。
 
@@ -41,21 +41,17 @@ def build_rag_prompt(question: str, context: str) -> str:
 
 
 def main() -> None:
+    """运行真实 embedding 版的 RAG v1 示例。"""
     question = "什么是输出解析器，它在 LangChain 学习路径里有什么作用？"
     if len(sys.argv) > 1:
         question = " ".join(sys.argv[1:]).strip() or question
 
-    documents = load_markdown_documents(KNOWLEDGE_DIR)
-    chunks = split_documents(documents, chunk_size=300, chunk_overlap=50)
-
-    store = InMemoryVectorStore()
-    store.add_documents(chunks)
-    retriever = SimpleRetriever(store, top_k=3)
+    settings = load_settings()
+    vector_store, embedding_model, chunks = build_real_vector_store(settings)
+    retriever = RealRetriever(vector_store, top_k=3)
     relevant_docs = retriever.get_relevant_documents(question)
-
     context = build_context(relevant_docs)
 
-    settings = load_settings()
     model = ChatOpenAI(
         model=settings.model,
         api_key=settings.api_key,
@@ -67,12 +63,12 @@ def main() -> None:
     response = model.invoke(prompt)
     answer = parse_text_output(response.content)
 
+    print(f"真实 embedding 模型: {embedding_model}")
+    print(f"入库 chunk 数: {len(chunks)}")
     print(f"问题: {question}")
     print("\n检索到的参考片段:")
     print(context)
     print(f"\nRAG 回答:\n{answer}")
 
-
 if __name__ == "__main__":
     main()
-

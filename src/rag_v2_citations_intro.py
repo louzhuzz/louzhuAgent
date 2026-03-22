@@ -4,14 +4,12 @@ from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 
 from config import load_settings
-from document_loading_intro import KNOWLEDGE_DIR, load_markdown_documents
 from output_parsers import parse_text_output
-from retriever_intro import SimpleRetriever
-from text_splitting_intro import split_documents
-from vector_store_intro import InMemoryVectorStore
+from real_retriever_helpers import RealRetriever, build_real_vector_store
 
 
 def build_context(documents: list[Document]) -> str:
+    """把检索结果拼成带编号和元数据的上下文字符串。"""
     parts: list[str] = []
     for index, document in enumerate(documents, start=1):
         source = document.metadata.get("source", "unknown")
@@ -24,6 +22,7 @@ def build_context(documents: list[Document]) -> str:
 
 
 def build_rag_prompt(question: str, context: str) -> str:
+    """构造要求模型显式标注引用片段的提示词。"""
     return f"""
 你是一个基于本地知识库回答问题的学习助理。
 
@@ -46,6 +45,7 @@ def build_rag_prompt(question: str, context: str) -> str:
 
 
 def print_sources(documents: list[Document]) -> None:
+    """打印来源清单，方便人工核对引用是否可追溯。"""
     print("\n来源清单:")
     for index, document in enumerate(documents, start=1):
         source = document.metadata.get("source", "unknown")
@@ -55,21 +55,17 @@ def print_sources(documents: list[Document]) -> None:
 
 
 def main() -> None:
+    """运行真实 embedding 版的 RAG v2 示例。"""
     question = "什么是输出解析器，它在 LangChain 学习路径里有什么作用？"
     if len(sys.argv) > 1:
         question = " ".join(sys.argv[1:]).strip() or question
 
-    documents = load_markdown_documents(KNOWLEDGE_DIR)
-    chunks = split_documents(documents, chunk_size=300, chunk_overlap=50)
-
-    store = InMemoryVectorStore()
-    store.add_documents(chunks)
-    retriever = SimpleRetriever(store, top_k=3)
+    settings = load_settings()
+    vector_store, embedding_model, chunks = build_real_vector_store(settings)
+    retriever = RealRetriever(vector_store, top_k=3)
     relevant_docs = retriever.get_relevant_documents(question)
-
     context = build_context(relevant_docs)
 
-    settings = load_settings()
     model = ChatOpenAI(
         model=settings.model,
         api_key=settings.api_key,
@@ -81,6 +77,8 @@ def main() -> None:
     response = model.invoke(prompt)
     answer = parse_text_output(response.content)
 
+    print(f"真实 embedding 模型: {embedding_model}")
+    print(f"入库 chunk 数: {len(chunks)}")
     print(f"问题: {question}")
     print_sources(relevant_docs)
     print(f"\n带引用的 RAG 回答:\n{answer}")
@@ -88,4 +86,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

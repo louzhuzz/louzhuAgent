@@ -34,6 +34,16 @@ def render_parallel_pitfalls_prompt(topic: str) -> str:
     template = _load_prompt_file("parallel_pitfalls_prompt.txt")
     return template.format(topic=topic)
 
+
+def render_tool_learning_prompt(file_name: str, note_content: str, question: str) -> str:
+    """生成“基于单个知识点工具结果回答问题”的提示词。"""
+    template = _load_prompt_file("tool_learning_assistant_prompt.txt")
+    return template.format(
+        file_name=file_name,
+        note_content=note_content,
+        question=question,
+    )
+
 # 其他提示模板的加载函数可以在这里添加
 def build_system_message(system_prompt: str) -> Message:
     return {"role": "system", "content": system_prompt}
