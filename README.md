@@ -86,3 +86,5 @@ python src/main.py
 - `/tools`：查看当前可用工具的 schema
 - `/tool 工具名 JSON参数`：手动按 schema 执行工具
 - `/study 问题`：自动选择一个知识点文件并基于该文件回答
+- `/agent 问题`：让模型自己决定是否调用工具
+- `/react 问题`：运行显式 Thought/Action/Observation 的 ReAct Agent

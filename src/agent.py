@@ -1,4 +1,6 @@
 import re
+import json
+from typing import Any
 
 from langchain_openai import ChatOpenAI
 
@@ -9,7 +11,9 @@ from prompts import (
     Message,
     build_chat_messages,
     load_system_prompt,
+    render_react_agent_prompt,
     render_study_plan_prompt,
+    render_tool_agent_decision_prompt,
     render_tool_learning_prompt,
 )
 from tools import execute_tool_call, get_tool_schemas, list_notes, read_note
@@ -86,6 +90,11 @@ class LearningAgent:
         )
         return parse_text_output(response.content)
 
+    def _invoke_json(self, user_input: str, temperature: float) -> dict[str, Any]:
+        """调用模型并把返回结果解析成 JSON 对象。"""
+        raw_text = self._invoke_text(user_input, temperature=temperature)
+        return parse_json_output(raw_text)
+
     def reply(self, user_input: str) -> str:
         """执行一轮普通对话。"""
         answer = self._invoke_text(user_input, temperature=0.7)
@@ -116,6 +125,51 @@ class LearningAgent:
         """按统一 schema 校验并执行指定工具。"""
         return execute_tool_call(tool_name, arguments)
 
+    def _build_tool_agent_scratchpad(self, steps: list[dict[str, Any]]) -> str:
+        """把已有工具调用记录整理成供下一轮决策使用的执行上下文。"""
+        if not steps:
+            return "暂无执行记录。"
+
+        parts: list[str] = []
+        for step in steps:
+            tool_name = step["tool_name"]
+            arguments = json.dumps(step["arguments"], ensure_ascii=False)
+            result = step["result"]
+            if not isinstance(result, str):
+                result = json.dumps(result, ensure_ascii=False, indent=2)
+
+            parts.append(
+                f"步骤 {step['step']}:\n"
+                f"- reason: {step['reason']}\n"
+                f"- tool_name: {tool_name}\n"
+                f"- arguments: {arguments}\n"
+                f"- result:\n{result}"
+            )
+
+        return "\n\n".join(parts)
+
+    def _build_react_scratchpad(self, steps: list[dict[str, Any]]) -> str:
+        """把 ReAct 过程中的 thought / action / observation 整理成上下文。"""
+        if not steps:
+            return "暂无思考与观察记录。"
+
+        parts: list[str] = []
+        for step in steps:
+            arguments = json.dumps(step["arguments"], ensure_ascii=False)
+            observation = step["observation"]
+            if not isinstance(observation, str):
+                observation = json.dumps(observation, ensure_ascii=False, indent=2)
+
+            parts.append(
+                f"步骤 {step['step']}:\n"
+                f"Thought: {step['thought']}\n"
+                f"Action: {step['tool_name']}\n"
+                f"Arguments: {arguments}\n"
+                f"Observation:\n{observation}"
+            )
+
+        return "\n\n".join(parts)
+
     def answer_with_note_tool(self, question: str) -> tuple[str, str]:
         """先选择知识点文件，再读取文件内容，并基于该工具结果回答问题。"""
         file_name = self._select_note_for_question(question)
@@ -124,6 +178,112 @@ class LearningAgent:
         answer = self._invoke_text(user_input, temperature=0.3)
         self._save_turn(question, answer)
         return file_name, answer
+
+    def run_tool_calling_agent(
+        self,
+        question: str,
+        max_steps: int = 3,
+    ) -> dict[str, Any]:
+        """运行一个由模型决定是否调用工具的最小 Agent 循环。"""
+        tool_schemas_json = json.dumps(
+            self.get_tool_schemas(),
+            ensure_ascii=False,
+            indent=2,
+        )
+        steps: list[dict[str, Any]] = []
+
+        for step_number in range(1, max_steps + 1):
+            scratchpad = self._build_tool_agent_scratchpad(steps)
+            prompt = render_tool_agent_decision_prompt(
+                question=question,
+                tool_schemas_json=tool_schemas_json,
+                scratchpad=scratchpad,
+            )
+            decision = self._invoke_json(prompt, temperature=0.1)
+
+            action = decision.get("action", "")
+            reason = str(decision.get("reason", "")).strip()
+
+            if action == "final_answer":
+                answer = str(decision.get("answer", "")).strip()
+                if not answer:
+                    raise ValueError("模型选择了 final_answer，但没有返回 answer。")
+
+                self._save_turn(question, answer)
+                return {"steps": steps, "answer": answer}
+
+            if action != "tool_call":
+                raise ValueError(f"模型返回了未知 action：{action}")
+
+            tool_name = str(decision.get("tool_name", "")).strip()
+            arguments = decision.get("arguments", {})
+            result = self.execute_tool(tool_name, arguments)
+            steps.append(
+                {
+                    "step": step_number,
+                    "reason": reason,
+                    "tool_name": tool_name,
+                    "arguments": arguments,
+                    "result": result,
+                }
+            )
+
+        final_answer = "工具调用已达到最大步数，当前工具结果不足以完整回答。"
+        self._save_turn(question, final_answer)
+        return {"steps": steps, "answer": final_answer}
+
+    def run_react_agent(
+        self,
+        question: str,
+        max_steps: int = 4,
+    ) -> dict[str, Any]:
+        """运行一个显式暴露 Thought/Action/Observation 的最小 ReAct Agent。"""
+        tool_schemas_json = json.dumps(
+            self.get_tool_schemas(),
+            ensure_ascii=False,
+            indent=2,
+        )
+        steps: list[dict[str, Any]] = []
+
+        for step_number in range(1, max_steps + 1):
+            scratchpad = self._build_react_scratchpad(steps)
+            prompt = render_react_agent_prompt(
+                question=question,
+                tool_schemas_json=tool_schemas_json,
+                scratchpad=scratchpad,
+            )
+            decision = self._invoke_json(prompt, temperature=0.1)
+
+            thought = str(decision.get("thought", "")).strip()
+            action = str(decision.get("action", "")).strip()
+
+            if action == "final_answer":
+                answer = str(decision.get("answer", "")).strip()
+                if not answer:
+                    raise ValueError("模型选择了 final_answer，但没有返回 answer。")
+
+                self._save_turn(question, answer)
+                return {"steps": steps, "answer": answer}
+
+            if action != "tool_call":
+                raise ValueError(f"模型返回了未知 action：{action}")
+
+            tool_name = str(decision.get("tool_name", "")).strip()
+            arguments = decision.get("arguments", {})
+            observation = self.execute_tool(tool_name, arguments)
+            steps.append(
+                {
+                    "step": step_number,
+                    "thought": thought,
+                    "tool_name": tool_name,
+                    "arguments": arguments,
+                    "observation": observation,
+                }
+            )
+
+        final_answer = "ReAct Agent 已达到最大步数，当前观察结果不足以完整回答。"
+        self._save_turn(question, final_answer)
+        return {"steps": steps, "answer": final_answer}
 
     def clear_history(self) -> None:
         """清空当前会话历史。"""

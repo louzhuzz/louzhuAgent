@@ -15,7 +15,9 @@ def main() -> None:
         "输入 /plan 主题 生成结构化学习计划，"
         "输入 /notes 查看知识点文件，输入 /read 文件名 读取笔记，"
         "输入 /tools 查看工具 schema，输入 /tool 工具名 JSON参数 手动执行工具，"
-        "输入 /study 问题 让程序自动选知识点并回答。"
+        "输入 /study 问题 让程序自动选知识点并回答，"
+        "输入 /agent 问题 让模型自己决定是否调用工具，"
+        "输入 /react 问题 运行 ReAct Agent。"
     )
 
     while True:
@@ -116,6 +118,45 @@ def main() -> None:
 
             print(f"\n本次自动选择的知识点文件: {file_name}")
             print(f"\nAgent(Tool): {answer}")
+            continue
+
+        if user_input.startswith("/agent "):
+            question = user_input[7:].strip()
+            if not question:
+                print("请在 /agent 后面补充问题。")
+                continue
+
+            try:
+                result = agent.run_tool_calling_agent(question)
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"Tool Calling Agent 执行失败：{exc}")
+                continue
+
+            print("\nTool Calling 步骤:")
+            for step in result["steps"]:
+                print(f"- 第 {step['step']} 步: {step['tool_name']} {step['arguments']}")
+                print(f"  决策原因: {step['reason']}")
+            print(f"\nAgent(Tool Calling): {result['answer']}")
+            continue
+
+        if user_input.startswith("/react "):
+            question = user_input[7:].strip()
+            if not question:
+                print("请在 /react 后面补充问题。")
+                continue
+
+            try:
+                result = agent.run_react_agent(question)
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"ReAct Agent 执行失败：{exc}")
+                continue
+
+            print("\nReAct 步骤:")
+            for step in result["steps"]:
+                print(f"- 第 {step['step']} 步")
+                print(f"  Thought: {step['thought']}")
+                print(f"  Action: {step['tool_name']} {step['arguments']}")
+            print(f"\nAgent(ReAct): {result['answer']}")
             continue
 
         answer = agent.reply(user_input)

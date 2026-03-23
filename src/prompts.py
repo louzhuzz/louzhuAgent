@@ -44,6 +44,34 @@ def render_tool_learning_prompt(file_name: str, note_content: str, question: str
         question=question,
     )
 
+
+def render_tool_agent_decision_prompt(
+    question: str,
+    tool_schemas_json: str,
+    scratchpad: str,
+) -> str:
+    """生成工具调用 Agent 每一步决策时使用的提示词。"""
+    template = _load_prompt_file("tool_agent_decision_prompt.txt")
+    return template.format(
+        question=question,
+        tool_schemas_json=tool_schemas_json,
+        scratchpad=scratchpad,
+    )
+
+
+def render_react_agent_prompt(
+    question: str,
+    tool_schemas_json: str,
+    scratchpad: str,
+) -> str:
+    """生成 ReAct Agent 每一步思考与行动时使用的提示词。"""
+    template = _load_prompt_file("react_agent_prompt.txt")
+    return template.format(
+        question=question,
+        tool_schemas_json=tool_schemas_json,
+        scratchpad=scratchpad,
+    )
+
 # 其他提示模板的加载函数可以在这里添加
 def build_system_message(system_prompt: str) -> Message:
     return {"role": "system", "content": system_prompt}
