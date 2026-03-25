@@ -1,4 +1,7 @@
+from _bootstrap import setup_example_path
 from langchain_core.vectorstores import InMemoryVectorStore
+
+setup_example_path()
 
 from ark_embeddings import ArkEmbeddings
 from config import load_settings, require_embedding_model

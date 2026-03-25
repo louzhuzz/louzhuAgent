@@ -1,0 +1,33 @@
+请围绕下面这份任务拆解请求生成结果，并严格只返回 JSON。
+
+任务目标：{goal}
+当前基础：{current_level}
+可用天数：{available_days}
+输出风格：{output_style}
+
+返回格式必须满足：
+{{
+  "goal": "任务目标",
+  "current_level": "当前基础",
+  "available_days": 7,
+  "output_style": "输出风格",
+  "summary": "整体拆解思路总结",
+  "steps": [
+    {{
+      "step": 1,
+      "title": "步骤标题",
+      "goal": "这一步要完成什么",
+      "actions": ["动作1", "动作2"],
+      "expected_output": "这一步的产出"
+    }}
+  ],
+  "risks": ["风险1", "风险2"]
+}}
+
+要求：
+1. 必须是合法 JSON
+2. 不要输出 Markdown 代码块
+3. 不要输出解释性文字
+4. steps 数量不能超过 {available_days}
+5. actions 每一步给出 2 到 4 项
+6. 拆解结果要和“当前基础”“可用天数”保持一致

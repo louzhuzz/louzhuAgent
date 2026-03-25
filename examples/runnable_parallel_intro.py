@@ -1,10 +1,13 @@
 import json
 import sys
 
+from _bootstrap import setup_example_path
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel
 from langchain_openai import ChatOpenAI
+
+setup_example_path()
 
 from config import load_settings
 from prompts import render_parallel_core_prompt, render_parallel_pitfalls_prompt
@@ -57,4 +60,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

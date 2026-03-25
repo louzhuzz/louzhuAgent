@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
+from _bootstrap import setup_example_path
 from langchain_core.documents import Document
+
+setup_example_path()
 
 from document_loading_intro import KNOWLEDGE_DIR, load_markdown_documents
 from embedding_intro import cosine_similarity, embed_text
@@ -61,4 +64,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -6,16 +6,21 @@ from langchain_openai import ChatOpenAI
 
 from config import Settings
 from langchain_helpers import to_langchain_messages
+from knowledge_qa import KnowledgeQARequest, KnowledgeQAService
 from output_parsers import parse_json_output, parse_text_output
 from prompts import (
     Message,
     build_chat_messages,
+    render_knowledge_qa_prompt,
     load_system_prompt,
     render_react_agent_prompt,
     render_study_plan_prompt,
+    render_task_breakdown_prompt,
     render_tool_agent_decision_prompt,
     render_tool_learning_prompt,
 )
+from study_plan import StudyPlanRequest, StudyPlanService
+from task_breakdown import TaskBreakdownRequest, TaskBreakdownService
 from tools import execute_tool_call, get_tool_schemas, list_notes, read_note
 
 
@@ -29,8 +34,27 @@ class LearningAgent:
             base_url=settings.base_url,
             temperature=0.7,
         )
+        if not settings.embedding_model:
+            raise ValueError("缺少 ARK_EMBEDDING_MODEL，主项目知识点问答需要真实 embedding 配置。")
         self.system_prompt = load_system_prompt()
         self.history: list[Message] = []
+        self.study_plan_service = StudyPlanService(
+            invoke_json=self._invoke_json,
+            render_prompt=render_study_plan_prompt,
+        )
+        self.task_breakdown_service = TaskBreakdownService(
+            invoke_json=self._invoke_json,
+            render_prompt=render_task_breakdown_prompt,
+        )
+        self.knowledge_qa_service = KnowledgeQAService(
+            list_notes=self.list_notes_tool,
+            read_note=self.read_note_tool,
+            invoke_text=self._invoke_text,
+            render_prompt=render_knowledge_qa_prompt,
+            api_key=settings.api_key,
+            base_url=settings.base_url,
+            embedding_model=settings.embedding_model,
+        )
 
     def _build_messages(self, user_input: str) -> list[Message]:
         """把系统提示、历史消息和当前输入组装成一次请求的消息列表。"""
@@ -101,13 +125,29 @@ class LearningAgent:
         self._save_turn(user_input, answer)
         return answer
 
-    def create_study_plan(self, topic: str) -> dict:
-        """根据学习主题生成结构化学习计划。"""
-        user_input = render_study_plan_prompt(topic)
-        raw_answer = self._invoke_text(user_input, temperature=0.3)
-        plan = parse_json_output(raw_answer)
-        self._save_turn(user_input, raw_answer)
+    def create_study_plan(self, request: StudyPlanRequest) -> dict:
+        """根据项目化的请求对象生成结构化学习计划。"""
+        plan = self.study_plan_service.generate(request)
+        self._save_turn(
+            f"/plan {request.topic} | {request.current_level} | {request.days} | {request.goal}",
+            json.dumps(plan, ensure_ascii=False),
+        )
         return plan
+
+    def create_task_breakdown(self, request: TaskBreakdownRequest) -> dict:
+        """根据项目化的请求对象生成结构化任务拆解。"""
+        result = self.task_breakdown_service.generate(request)
+        self._save_turn(
+            f"/breakdown {request.goal} | {request.current_level} | {request.available_days} | {request.output_style}",
+            json.dumps(result, ensure_ascii=False),
+        )
+        return result
+
+    def answer_knowledge_question(self, request: KnowledgeQARequest) -> dict[str, object]:
+        """执行主项目版知识点问答，并把结果保存到会话历史。"""
+        result = self.knowledge_qa_service.answer(request)
+        self._save_turn(f"/qa {request.question}", str(result["answer"]))
+        return result
 
     def list_notes_tool(self) -> list[str]:
         """执行列出知识点文件的本地工具。"""
@@ -193,18 +233,18 @@ class LearningAgent:
         steps: list[dict[str, Any]] = []
 
         for step_number in range(1, max_steps + 1):
-            scratchpad = self._build_tool_agent_scratchpad(steps)
-            prompt = render_tool_agent_decision_prompt(
+            scratchpad = self._build_tool_agent_scratchpad(steps) # 把之前的工具调用记录整理成上下文，供模型决策时参考
+            prompt = render_tool_agent_decision_prompt( # 生成决策提示词，包含问题、工具信息和执行上下文
                 question=question,
                 tool_schemas_json=tool_schemas_json,
                 scratchpad=scratchpad,
             )
-            decision = self._invoke_json(prompt, temperature=0.1)
+            decision = self._invoke_json(prompt, temperature=0.1) # 调用模型并解析成结构化决策
 
             action = decision.get("action", "")
             reason = str(decision.get("reason", "")).strip()
 
-            if action == "final_answer":
+            if action == "final_answer": # 模型认为当前信息足够，可以直接回答问题了
                 answer = str(decision.get("answer", "")).strip()
                 if not answer:
                     raise ValueError("模型选择了 final_answer，但没有返回 answer。")

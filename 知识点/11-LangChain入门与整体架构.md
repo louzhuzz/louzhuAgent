@@ -12,7 +12,7 @@
 
 本节完成后，你会多一个可运行脚本：
 
-- [src/langchain_intro.py](/mnt/d/AIcodes/Agent/src/langchain_intro.py)
+- [examples/langchain_intro.py](/mnt/d/AIcodes/Agent/examples/langchain_intro.py)
 
 ## 2. 是什么
 
@@ -74,7 +74,7 @@ pip install -r requirements.txt
 
 我们没有直接改 [src/main.py](/mnt/d/AIcodes/Agent/src/main.py)，而是新增一个独立文件：
 
-- [src/langchain_intro.py](/mnt/d/AIcodes/Agent/src/langchain_intro.py)
+- [examples/langchain_intro.py](/mnt/d/AIcodes/Agent/examples/langchain_intro.py)
 
 这样做的好处是：
 
@@ -113,7 +113,7 @@ pip install -r requirements.txt
 
 ### 代码 1：最小 LangChain 模型初始化
 
-文件：[src/langchain_intro.py](/mnt/d/AIcodes/Agent/src/langchain_intro.py)
+文件：[examples/langchain_intro.py](/mnt/d/AIcodes/Agent/examples/langchain_intro.py)
 
 ```python
 model = ChatOpenAI(
@@ -136,7 +136,7 @@ model = ChatOpenAI(
 
 ### 代码 2：LangChain 的消息对象
 
-文件：[src/langchain_intro.py](/mnt/d/AIcodes/Agent/src/langchain_intro.py)
+文件：[examples/langchain_intro.py](/mnt/d/AIcodes/Agent/examples/langchain_intro.py)
 
 ```python
 messages = [
@@ -161,7 +161,7 @@ messages = [
 
 ### 代码 3：调用模型
 
-文件：[src/langchain_intro.py](/mnt/d/AIcodes/Agent/src/langchain_intro.py)
+文件：[examples/langchain_intro.py](/mnt/d/AIcodes/Agent/examples/langchain_intro.py)
 
 ```python
 response = model.invoke(messages)
@@ -175,7 +175,7 @@ response = model.invoke(messages)
 
 ### 代码 4：为什么要做响应文本提取
 
-文件：[src/langchain_intro.py](/mnt/d/AIcodes/Agent/src/langchain_intro.py)
+文件：[examples/langchain_intro.py](/mnt/d/AIcodes/Agent/examples/langchain_intro.py)
 
 ```python
 def _message_to_text(content: object) -> str:
@@ -297,13 +297,13 @@ pip install -r requirements.txt
 然后运行：
 
 ```bash
-python src/langchain_intro.py
+python examples/langchain_intro.py
 ```
 
 或者自定义输入：
 
 ```bash
-python src/langchain_intro.py LangChain 和普通 SDK 的区别是什么？
+python examples/langchain_intro.py LangChain 和普通 SDK 的区别是什么？
 ```
 
 如果能正常输出结果，说明你已经成功跑通了第一个 LangChain 示例。

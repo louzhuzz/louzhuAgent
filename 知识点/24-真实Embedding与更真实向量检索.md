@@ -14,7 +14,7 @@
 
 本节新增的示例文件是：
 
-- [src/real_embedding_vectorstore_intro.py](/mnt/d/AIcodes/Agent/src/real_embedding_vectorstore_intro.py)
+- [examples/real_embedding_vectorstore_intro.py](/mnt/d/AIcodes/Agent/examples/real_embedding_vectorstore_intro.py)
 
 ## 2. 是什么
 
@@ -89,7 +89,7 @@ response = client.embeddings.create(
 
 不过为了继续对接 LangChain 的 `InMemoryVectorStore`，我们额外封装了一个：
 
-- [src/ark_embeddings.py](/mnt/d/AIcodes/Agent/src/ark_embeddings.py)
+- [examples/ark_embeddings.py](/mnt/d/AIcodes/Agent/examples/ark_embeddings.py)
 
 它实现了 LangChain 的 `Embeddings` 接口，把官方 Ark SDK 调用适配成：
 
@@ -157,7 +157,7 @@ def require_embedding_model(settings: Settings) -> str:
 
 ### 代码 3：Ark SDK 适配成 LangChain Embeddings
 
-文件：[src/ark_embeddings.py](/mnt/d/AIcodes/Agent/src/ark_embeddings.py)
+文件：[examples/ark_embeddings.py](/mnt/d/AIcodes/Agent/examples/ark_embeddings.py)
 
 ```python
 class ArkEmbeddings(Embeddings):
@@ -175,7 +175,7 @@ class ArkEmbeddings(Embeddings):
 
 ### 代码 4：批量向量化
 
-文件：[src/ark_embeddings.py](/mnt/d/AIcodes/Agent/src/ark_embeddings.py)
+文件：[examples/ark_embeddings.py](/mnt/d/AIcodes/Agent/examples/ark_embeddings.py)
 
 ```python
 if self._use_multimodal_api():
@@ -203,7 +203,7 @@ else:
 
 ### 代码 5：真实向量检索
 
-文件：[src/real_embedding_vectorstore_intro.py](/mnt/d/AIcodes/Agent/src/real_embedding_vectorstore_intro.py)
+文件：[examples/real_embedding_vectorstore_intro.py](/mnt/d/AIcodes/Agent/examples/real_embedding_vectorstore_intro.py)
 
 ```python
 results = vector_store.similarity_search_with_score(query, k=3)
@@ -350,7 +350,7 @@ ARK_EMBEDDING_MODEL=你的真实 embedding 模型或接入点
 然后运行：
 
 ```bash
-python src/real_embedding_vectorstore_intro.py
+python examples/real_embedding_vectorstore_intro.py
 ```
 
 如果你能看到：

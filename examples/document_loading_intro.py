@@ -1,6 +1,9 @@
 from pathlib import Path
 
+from _bootstrap import setup_example_path
 from langchain_core.documents import Document
+
+setup_example_path()
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -37,4 +40,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

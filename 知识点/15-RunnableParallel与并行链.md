@@ -9,7 +9,7 @@
 
 本节新增一个独立示例：
 
-- [src/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/src/runnable_parallel_intro.py)
+- [examples/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/examples/runnable_parallel_intro.py)
 
 它会对同一个主题并行生成两类结果：
 
@@ -116,7 +116,7 @@ result = parallel_chain.invoke({"topic": topic})
 
 ### 代码 1：并行链定义
 
-文件：[src/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/src/runnable_parallel_intro.py)
+文件：[examples/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/examples/runnable_parallel_intro.py)
 
 ```python
 parallel_chain = RunnableParallel(
@@ -139,7 +139,7 @@ parallel_chain = RunnableParallel(
 
 ### 代码 2：并行结果执行
 
-文件：[src/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/src/runnable_parallel_intro.py)
+文件：[examples/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/examples/runnable_parallel_intro.py)
 
 ```python
 result = parallel_chain.invoke({"topic": topic})
@@ -152,7 +152,7 @@ result = parallel_chain.invoke({"topic": topic})
 
 ### 代码 3：结果为什么适合 JSON 打印
 
-文件：[src/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/src/runnable_parallel_intro.py)
+文件：[examples/runnable_parallel_intro.py](/mnt/d/AIcodes/Agent/examples/runnable_parallel_intro.py)
 
 ```python
 print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -246,13 +246,13 @@ print(json.dumps(result, ensure_ascii=False, indent=2))
 运行：
 
 ```bash
-python src/runnable_parallel_intro.py
+python examples/runnable_parallel_intro.py
 ```
 
 或者：
 
 ```bash
-python src/runnable_parallel_intro.py LangChain
+python examples/runnable_parallel_intro.py LangChain
 ```
 
 如果输出是一个包含这两个字段的 JSON：

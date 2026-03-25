@@ -2,8 +2,11 @@ import re
 import sys
 from dataclasses import dataclass
 
+from _bootstrap import setup_example_path
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
+
+setup_example_path()
 
 from config import load_settings
 from output_parsers import parse_text_output

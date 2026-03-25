@@ -2,6 +2,9 @@ import json
 
 from agent import LearningAgent
 from config import load_settings
+from knowledge_qa import KnowledgeQARequest
+from study_plan import parse_study_plan_request
+from task_breakdown import parse_task_breakdown_request
 
 
 def main() -> None:
@@ -12,7 +15,9 @@ def main() -> None:
     print("个人学习助理 Agent 已启动。")
     print(
         "输入 exit 退出，输入 /clear 清空对话记忆，"
-        "输入 /plan 主题 生成结构化学习计划，"
+        "输入 /plan 主题 | 当前基础 | 学习天数 | 学习目标 生成结构化学习计划，"
+        "输入 /breakdown 目标 | 当前基础 | 可用天数 | 输出风格 生成结构化任务拆解，"
+        "输入 /qa 问题 运行主项目版知识点问答，"
         "输入 /notes 查看知识点文件，输入 /read 文件名 读取笔记，"
         "输入 /tools 查看工具 schema，输入 /tool 工具名 JSON参数 手动执行工具，"
         "输入 /study 问题 让程序自动选知识点并回答，"
@@ -36,14 +41,63 @@ def main() -> None:
             continue
 
         if user_input.startswith("/plan "):
-            topic = user_input[6:].strip()
-            if not topic:
-                print("请在 /plan 后面补充学习主题。")
+            raw_request = user_input[6:].strip()
+            if not raw_request:
+                print("请在 /plan 后面补充内容，例如 /plan LangChain | 零基础 | 5 | 做出一个可运行 Demo")
                 continue
 
-            plan = agent.create_study_plan(topic)
+            try:
+                request = parse_study_plan_request(raw_request)
+            except ValueError as exc:
+                print(f"学习计划请求不合法：{exc}")
+                continue
+
+            plan = agent.create_study_plan(request)
             print("\nAgent(JSON):")
             print(json.dumps(plan, ensure_ascii=False, indent=2))
+            continue
+
+        if user_input.startswith("/breakdown "):
+            raw_request = user_input[11:].strip()
+            if not raw_request:
+                print("请在 /breakdown 后面补充内容，例如 /breakdown 做一个个人学习助理 | 零基础 | 14 | 可执行步骤")
+                continue
+
+            try:
+                request = parse_task_breakdown_request(raw_request)
+            except ValueError as exc:
+                print(f"任务拆解请求不合法：{exc}")
+                continue
+
+            result = agent.create_task_breakdown(request)
+            print("\nAgent(JSON):")
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            continue
+
+        if user_input.startswith("/qa "):
+            question = user_input[4:].strip()
+            if not question:
+                print("请在 /qa 后面补充问题。")
+                continue
+
+            try:
+                result = agent.answer_knowledge_question(
+                    KnowledgeQARequest(question=question)
+                )
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"知识点问答执行失败：{exc}")
+                continue
+
+            print("\n本次选中的知识点文件:")
+            for file_name in result["selected_notes"]:
+                print(f"- {file_name}")
+            print("\n命中的资料片段:")
+            for chunk in result["retrieved_chunks"]:
+                print(
+                    f"- {chunk['file_name']} "
+                    f"({chunk['chunk_start']}, {chunk['chunk_end']})"
+                )
+            print(f"\nAgent(QA): {result['answer']}")
             continue
 
         if user_input == "/notes":

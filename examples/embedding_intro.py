@@ -2,6 +2,10 @@ import hashlib
 import math
 import re
 
+from _bootstrap import setup_example_path
+
+setup_example_path()
+
 from document_loading_intro import KNOWLEDGE_DIR, load_markdown_documents
 from text_splitting_intro import split_documents
 
@@ -65,4 +69,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

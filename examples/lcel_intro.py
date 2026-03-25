@@ -1,8 +1,11 @@
 import sys
 
+from _bootstrap import setup_example_path
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+
+setup_example_path()
 
 from config import load_settings
 from prompts import render_lcel_summary_prompt

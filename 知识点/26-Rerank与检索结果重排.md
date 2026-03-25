@@ -15,7 +15,7 @@
 
 本节新增文件：
 
-- [src/rerank_intro.py](/mnt/d/AIcodes/Agent/src/rerank_intro.py)
+- [examples/rerank_intro.py](/mnt/d/AIcodes/Agent/examples/rerank_intro.py)
 
 ## 2. 是什么
 
@@ -113,7 +113,7 @@ final_score = vector_score * 0.7 + overlap_score * 0.3
 
 ### 代码 1：重排结果数据结构
 
-文件：[src/rerank_intro.py](/mnt/d/AIcodes/Agent/src/rerank_intro.py)
+文件：[examples/rerank_intro.py](/mnt/d/AIcodes/Agent/examples/rerank_intro.py)
 
 ```python
 @dataclass
@@ -138,7 +138,7 @@ class RerankResult:
 
 ### 代码 2：提取查询关键词
 
-文件：[src/rerank_intro.py](/mnt/d/AIcodes/Agent/src/rerank_intro.py)
+文件：[examples/rerank_intro.py](/mnt/d/AIcodes/Agent/examples/rerank_intro.py)
 
 ```python
 def extract_query_terms(text: str) -> set[str]:
@@ -172,7 +172,7 @@ def extract_query_terms(text: str) -> set[str]:
 
 ### 代码 3：关键词重叠分数
 
-文件：[src/rerank_intro.py](/mnt/d/AIcodes/Agent/src/rerank_intro.py)
+文件：[examples/rerank_intro.py](/mnt/d/AIcodes/Agent/examples/rerank_intro.py)
 
 ```python
 def compute_overlap_score(query: str, content: str) -> float:
@@ -198,7 +198,7 @@ def compute_overlap_score(query: str, content: str) -> float:
 
 ### 代码 4：合成最终分数
 
-文件：[src/rerank_intro.py](/mnt/d/AIcodes/Agent/src/rerank_intro.py)
+文件：[examples/rerank_intro.py](/mnt/d/AIcodes/Agent/examples/rerank_intro.py)
 
 ```python
 final_score = vector_score * vector_weight + overlap_score * overlap_weight
@@ -223,7 +223,7 @@ final_score = vector_score * vector_weight + overlap_score * overlap_weight
 
 ### 代码 5：重排后的 RAG
 
-文件：[src/rerank_intro.py](/mnt/d/AIcodes/Agent/src/rerank_intro.py)
+文件：[examples/rerank_intro.py](/mnt/d/AIcodes/Agent/examples/rerank_intro.py)
 
 ```python
 raw_results = vector_store.similarity_search_with_score(question, k=6)
@@ -327,13 +327,13 @@ context = build_context(reranked_results)
 你现在可以运行：
 
 ```bash
-python src/rerank_intro.py
+python examples/rerank_intro.py
 ```
 
 或者：
 
 ```bash
-python src/rerank_intro.py 什么是输出解析器，它在 LangChain 学习路径里有什么作用？
+python examples/rerank_intro.py 什么是输出解析器，它在 LangChain 学习路径里有什么作用？
 ```
 
 你应该能看到三段输出：

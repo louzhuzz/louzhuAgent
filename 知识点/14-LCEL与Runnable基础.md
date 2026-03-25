@@ -6,7 +6,7 @@
 
 本节不直接改主 Agent，而是新增一个独立示例：
 
-- [src/lcel_intro.py](/mnt/d/AIcodes/Agent/src/lcel_intro.py)
+- [examples/lcel_intro.py](/mnt/d/AIcodes/Agent/examples/lcel_intro.py)
 
 你会看到一条最小的链：
 
@@ -106,7 +106,7 @@ chain = prompt | model | parser
 
 ### 代码 1：Prompt 作为 Runnable
 
-文件：[src/lcel_intro.py](/mnt/d/AIcodes/Agent/src/lcel_intro.py)
+文件：[examples/lcel_intro.py](/mnt/d/AIcodes/Agent/examples/lcel_intro.py)
 
 ```python
 prompt = ChatPromptTemplate.from_messages(
@@ -124,7 +124,7 @@ prompt = ChatPromptTemplate.from_messages(
 
 ### 代码 2：模型层
 
-文件：[src/lcel_intro.py](/mnt/d/AIcodes/Agent/src/lcel_intro.py)
+文件：[examples/lcel_intro.py](/mnt/d/AIcodes/Agent/examples/lcel_intro.py)
 
 ```python
 model = ChatOpenAI(
@@ -144,7 +144,7 @@ model = ChatOpenAI(
 
 ### 代码 3：解析器层
 
-文件：[src/lcel_intro.py](/mnt/d/AIcodes/Agent/src/lcel_intro.py)
+文件：[examples/lcel_intro.py](/mnt/d/AIcodes/Agent/examples/lcel_intro.py)
 
 ```python
 parser = StrOutputParser()
@@ -158,7 +158,7 @@ parser = StrOutputParser()
 
 ### 代码 4：链式组合
 
-文件：[src/lcel_intro.py](/mnt/d/AIcodes/Agent/src/lcel_intro.py)
+文件：[examples/lcel_intro.py](/mnt/d/AIcodes/Agent/examples/lcel_intro.py)
 
 ```python
 chain = prompt | model | parser
@@ -262,13 +262,13 @@ prompt | model | parser
 先运行：
 
 ```bash
-python src/lcel_intro.py
+python examples/lcel_intro.py
 ```
 
 或者：
 
 ```bash
-python src/lcel_intro.py LangChain 输出解析器的作用
+python examples/lcel_intro.py LangChain 输出解析器的作用
 ```
 
 如果能稳定输出 3 条 `- ` 开头的总结，这一节就算跑通了。

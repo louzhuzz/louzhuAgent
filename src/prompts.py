@@ -1,6 +1,9 @@
 from pathlib import Path
 from typing import TypeAlias
 
+from task_breakdown import TaskBreakdownRequest
+from study_plan import StudyPlanRequest
+
 PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 Message: TypeAlias = dict[str, str]
 
@@ -15,9 +18,25 @@ def load_system_prompt() -> str:
     return _load_prompt_file("system_prompt.txt")
 
 # 生成结构化学习计划的提示
-def render_study_plan_prompt(topic: str) -> str:
+def render_study_plan_prompt(request: StudyPlanRequest) -> str:
     template = _load_prompt_file("study_plan_prompt.txt")
-    return template.format(topic=topic)
+    return template.format(
+        topic=request.topic,
+        current_level=request.current_level,
+        days=request.days,
+        goal=request.goal,
+    )
+
+
+def render_task_breakdown_prompt(request: TaskBreakdownRequest) -> str:
+    """生成结构化任务拆解的提示词。"""
+    template = _load_prompt_file("task_breakdown_prompt.txt")
+    return template.format(
+        goal=request.goal,
+        current_level=request.current_level,
+        available_days=request.available_days,
+        output_style=request.output_style,
+    )
 
 
 def render_lcel_summary_prompt(topic: str) -> str:
@@ -71,6 +90,28 @@ def render_react_agent_prompt(
         tool_schemas_json=tool_schemas_json,
         scratchpad=scratchpad,
     )
+
+
+def render_knowledge_qa_prompt(question: str, context: str) -> str:
+    """生成主项目知识点问答使用的提示词。"""
+    return f"""
+你是一个“基于本地知识点资料回答问题的学习助理”。
+
+请严格基于下面提供的知识点资料回答问题。
+如果这些资料不足以完整支持结论，请明确说明“当前选中的知识点资料不足”。
+
+知识点资料：
+{context}
+
+用户问题：
+{question}
+
+回答要求：
+1. 默认使用中文简体
+2. 先直接回答问题，再补充关键知识点
+3. 尽量引用 [资料X] 标注依据
+4. 不要把资料里没有明确出现的框架细节当成确定事实
+""".strip()
 
 # 其他提示模板的加载函数可以在这里添加
 def build_system_message(system_prompt: str) -> Message:

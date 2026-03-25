@@ -32,6 +32,13 @@
 
 学习资料在 [`知识点`](./知识点) 目录。
 
+## 目录说明
+
+- `src/`：主项目核心代码，只保留当前学习助理真正运行所需的文件
+- `examples/`：旧示例与教学脚本，包含 LangChain、RAG、Rerank 等独立演示
+- `prompts/`：主项目与示例共用的 Prompt 模板
+- `知识点/`：配套教学文档
+
 ## 当前已完成
 
 - 已确定项目主题：个人学习助理 Agent
@@ -67,6 +74,14 @@ cp .env.example .env
 python src/main.py
 ```
 
+如果你要运行旧示例，请改用：
+
+```bash
+python examples/langchain_intro.py
+python examples/rag_v1_intro.py
+python examples/rerank_intro.py
+```
+
 你需要先在 `.env` 中填入可用的火山方舟配置。
 
 当前默认接入方式：
@@ -80,7 +95,9 @@ python src/main.py
 
 - `exit`：退出程序
 - `/clear`：清空当前对话记忆
-- `/plan 主题`：输出结构化学习计划 JSON
+- `/plan 主题 | 当前基础 | 学习天数 | 学习目标`：输出项目化学习计划 JSON
+- `/breakdown 目标 | 当前基础 | 可用天数 | 输出风格`：输出项目化任务拆解 JSON
+- `/qa 问题`：运行主项目版知识点问答（只对少量候选文件做 embedding 检索）
 - `/notes`：列出 `知识点/` 目录下的 Markdown 文件
 - `/read 文件名`：读取指定知识点文件内容
 - `/tools`：查看当前可用工具的 schema

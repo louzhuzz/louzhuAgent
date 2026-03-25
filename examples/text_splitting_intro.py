@@ -1,5 +1,9 @@
 from langchain_core.documents import Document
 
+from _bootstrap import setup_example_path
+
+setup_example_path()
+
 from document_loading_intro import KNOWLEDGE_DIR, load_markdown_documents
 
 
@@ -57,4 +61,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

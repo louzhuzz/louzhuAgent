@@ -13,7 +13,7 @@
 
 本节新增的示例文件是：
 
-- [src/rag_v1_intro.py](/mnt/d/AIcodes/Agent/src/rag_v1_intro.py)
+- [examples/rag_v1_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v1_intro.py)
 
 ## 2. 是什么
 
@@ -53,7 +53,7 @@ RAG v1 的最小闭环可以概括成一句话：
 
 这一节直接复用前面的 Retriever：
 
-- [src/retriever_intro.py](/mnt/d/AIcodes/Agent/src/retriever_intro.py)
+- [examples/retriever_intro.py](/mnt/d/AIcodes/Agent/examples/retriever_intro.py)
 
 先拿到最相关的 3 个文档片段。
 
@@ -95,7 +95,7 @@ build_rag_prompt(question, context)
 
 ### 代码 1：检索相关文档
 
-文件：[src/rag_v1_intro.py](/mnt/d/AIcodes/Agent/src/rag_v1_intro.py)
+文件：[examples/rag_v1_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v1_intro.py)
 
 ```python
 retriever = SimpleRetriever(store, top_k=3)
@@ -109,7 +109,7 @@ relevant_docs = retriever.get_relevant_documents(question)
 
 ### 代码 2：构造上下文
 
-文件：[src/rag_v1_intro.py](/mnt/d/AIcodes/Agent/src/rag_v1_intro.py)
+文件：[examples/rag_v1_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v1_intro.py)
 
 ```python
 def build_context(documents: list) -> str:
@@ -129,7 +129,7 @@ def build_context(documents: list) -> str:
 
 ### 代码 3：RAG Prompt
 
-文件：[src/rag_v1_intro.py](/mnt/d/AIcodes/Agent/src/rag_v1_intro.py)
+文件：[examples/rag_v1_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v1_intro.py)
 
 ```python
 def build_rag_prompt(question: str, context: str) -> str:
@@ -151,7 +151,7 @@ def build_rag_prompt(question: str, context: str) -> str:
 
 ### 代码 4：模型回答
 
-文件：[src/rag_v1_intro.py](/mnt/d/AIcodes/Agent/src/rag_v1_intro.py)
+文件：[examples/rag_v1_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v1_intro.py)
 
 ```python
 response = model.invoke(prompt)
@@ -240,13 +240,13 @@ answer = parse_text_output(response.content)
 运行：
 
 ```bash
-python src/rag_v1_intro.py
+python examples/rag_v1_intro.py
 ```
 
 或者：
 
 ```bash
-python src/rag_v1_intro.py 什么是 Retriever
+python examples/rag_v1_intro.py 什么是 Retriever
 ```
 
 如果你能看到：

@@ -9,7 +9,7 @@
 
 本节新增的示例文件是：
 
-- [src/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/src/rag_v2_citations_intro.py)
+- [examples/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v2_citations_intro.py)
 
 ## 2. 是什么
 
@@ -72,7 +72,7 @@ Prompt 不再只说“基于资料回答”，而是明确要求：
 
 ### 代码 1：增强后的上下文
 
-文件：[src/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/src/rag_v2_citations_intro.py)
+文件：[examples/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v2_citations_intro.py)
 
 ```python
 parts.append(
@@ -87,7 +87,7 @@ parts.append(
 
 ### 代码 2：Prompt 中加入引用要求
 
-文件：[src/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/src/rag_v2_citations_intro.py)
+文件：[examples/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v2_citations_intro.py)
 
 ```python
 4. 每一个核心结论后，尽量用 [片段X] 的形式标注依据
@@ -98,7 +98,7 @@ parts.append(
 
 ### 代码 3：来源清单打印
 
-文件：[src/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/src/rag_v2_citations_intro.py)
+文件：[examples/rag_v2_citations_intro.py](/mnt/d/AIcodes/Agent/examples/rag_v2_citations_intro.py)
 
 ```python
 def print_sources(documents: list[Document]) -> None:
@@ -190,13 +190,13 @@ def print_sources(documents: list[Document]) -> None:
 运行：
 
 ```bash
-python src/rag_v2_citations_intro.py
+python examples/rag_v2_citations_intro.py
 ```
 
 或者：
 
 ```bash
-python src/rag_v2_citations_intro.py 什么是 Retriever
+python examples/rag_v2_citations_intro.py 什么是 Retriever
 ```
 
 如果你能看到：

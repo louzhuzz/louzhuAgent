@@ -12,7 +12,7 @@
 
 本节新增的示例文件是：
 
-- [src/embedding_intro.py](/mnt/d/AIcodes/Agent/src/embedding_intro.py)
+- [examples/embedding_intro.py](/mnt/d/AIcodes/Agent/examples/embedding_intro.py)
 
 ## 2. 是什么
 
@@ -97,7 +97,7 @@ Embedding 的作用就是：
 
 ### 代码 1：tokenize
 
-文件：[src/embedding_intro.py](/mnt/d/AIcodes/Agent/src/embedding_intro.py)
+文件：[examples/embedding_intro.py](/mnt/d/AIcodes/Agent/examples/embedding_intro.py)
 
 ```python
 def tokenize(text: str) -> list[str]:
@@ -112,7 +112,7 @@ def tokenize(text: str) -> list[str]:
 
 ### 代码 2：文本转向量
 
-文件：[src/embedding_intro.py](/mnt/d/AIcodes/Agent/src/embedding_intro.py)
+文件：[examples/embedding_intro.py](/mnt/d/AIcodes/Agent/examples/embedding_intro.py)
 
 ```python
 def embed_text(text: str, dimension: int = 32) -> list[float]:
@@ -132,7 +132,7 @@ def embed_text(text: str, dimension: int = 32) -> list[float]:
 
 ### 代码 3：向量归一化
 
-文件：[src/embedding_intro.py](/mnt/d/AIcodes/Agent/src/embedding_intro.py)
+文件：[examples/embedding_intro.py](/mnt/d/AIcodes/Agent/examples/embedding_intro.py)
 
 ```python
 norm = math.sqrt(sum(value * value for value in vector))
@@ -146,7 +146,7 @@ return [value / norm for value in vector]
 
 ### 代码 4：余弦相似度
 
-文件：[src/embedding_intro.py](/mnt/d/AIcodes/Agent/src/embedding_intro.py)
+文件：[examples/embedding_intro.py](/mnt/d/AIcodes/Agent/examples/embedding_intro.py)
 
 ```python
 def cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
@@ -157,7 +157,7 @@ def cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
 
 ### 代码 5：对 chunk 排序
 
-文件：[src/embedding_intro.py](/mnt/d/AIcodes/Agent/src/embedding_intro.py)
+文件：[examples/embedding_intro.py](/mnt/d/AIcodes/Agent/examples/embedding_intro.py)
 
 ```python
 score = cosine_similarity(query_vector, embed_text(chunk_text))
@@ -245,7 +245,7 @@ scored.sort(key=lambda item: item[1], reverse=True)
 运行：
 
 ```bash
-python src/embedding_intro.py
+python examples/embedding_intro.py
 ```
 
 如果你能看到：

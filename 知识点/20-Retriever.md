@@ -8,7 +8,7 @@
 
 本节新增的示例文件是：
 
-- [src/retriever_intro.py](/mnt/d/AIcodes/Agent/src/retriever_intro.py)
+- [examples/retriever_intro.py](/mnt/d/AIcodes/Agent/examples/retriever_intro.py)
 
 ## 2. 是什么
 
@@ -52,7 +52,7 @@ Retriever 可以先简单理解成：
 
 我们继续复用：
 
-- [src/vector_store_intro.py](/mnt/d/AIcodes/Agent/src/vector_store_intro.py)
+- [examples/vector_store_intro.py](/mnt/d/AIcodes/Agent/examples/vector_store_intro.py)
 
 ### 第二步：定义一个更高层的检索类
 
@@ -95,7 +95,7 @@ Retriever 内部仍然会调用：
 
 ### 代码 1：Retriever 定义
 
-文件：[src/retriever_intro.py](/mnt/d/AIcodes/Agent/src/retriever_intro.py)
+文件：[examples/retriever_intro.py](/mnt/d/AIcodes/Agent/examples/retriever_intro.py)
 
 ```python
 class SimpleRetriever:
@@ -110,7 +110,7 @@ class SimpleRetriever:
 
 ### 代码 2：Retriever 对外接口
 
-文件：[src/retriever_intro.py](/mnt/d/AIcodes/Agent/src/retriever_intro.py)
+文件：[examples/retriever_intro.py](/mnt/d/AIcodes/Agent/examples/retriever_intro.py)
 
 ```python
 def get_relevant_documents(self, query: str) -> list[Document]:
@@ -127,7 +127,7 @@ def get_relevant_documents(self, query: str) -> list[Document]:
 
 ### 代码 3：调用方变简单
 
-文件：[src/retriever_intro.py](/mnt/d/AIcodes/Agent/src/retriever_intro.py)
+文件：[examples/retriever_intro.py](/mnt/d/AIcodes/Agent/examples/retriever_intro.py)
 
 ```python
 retriever = SimpleRetriever(store, top_k=3)
@@ -218,7 +218,7 @@ Retriever 更合理的做法是：
 运行：
 
 ```bash
-python src/retriever_intro.py
+python examples/retriever_intro.py
 ```
 
 如果你能看到：

@@ -1,6 +1,10 @@
 from langchain_core.documents import Document
 from langchain_core.vectorstores import InMemoryVectorStore
 
+from _bootstrap import setup_example_path
+
+setup_example_path()
+
 from ark_embeddings import ArkEmbeddings
 from config import Settings, require_embedding_model
 from document_loading_intro import KNOWLEDGE_DIR, load_markdown_documents
