@@ -97,7 +97,8 @@ python examples/rerank_intro.py
 - `/clear`：清空当前对话记忆
 - `/plan 主题 | 当前基础 | 学习天数 | 学习目标`：输出项目化学习计划 JSON
 - `/breakdown 目标 | 当前基础 | 可用天数 | 输出风格`：输出项目化任务拆解 JSON
-- `/qa 问题`：运行主项目版知识点问答（只对少量候选文件做 embedding 检索）
+- `/qa 问题`：运行主项目版知识点问答（少量候选文件 + embedding 缓存 + ChromaDB 持久化）
+- `/v1 问题`：运行个人学习助理 Agent v1 统一入口，让系统自动判断该走哪种能力
 - `/notes`：列出 `知识点/` 目录下的 Markdown 文件
 - `/read 文件名`：读取指定知识点文件内容
 - `/tools`：查看当前可用工具的 schema

@@ -18,6 +18,7 @@ def main() -> None:
         "输入 /plan 主题 | 当前基础 | 学习天数 | 学习目标 生成结构化学习计划，"
         "输入 /breakdown 目标 | 当前基础 | 可用天数 | 输出风格 生成结构化任务拆解，"
         "输入 /qa 问题 运行主项目版知识点问答，"
+        "输入 /v1 问题 运行个人学习助理 Agent v1 统一入口，"
         "输入 /notes 查看知识点文件，输入 /read 文件名 读取笔记，"
         "输入 /tools 查看工具 schema，输入 /tool 工具名 JSON参数 手动执行工具，"
         "输入 /study 问题 让程序自动选知识点并回答，"
@@ -91,13 +92,75 @@ def main() -> None:
             print("\n本次选中的知识点文件:")
             for file_name in result["selected_notes"]:
                 print(f"- {file_name}")
+            print("\n索引状态:")
+            for status in result["index_statuses"]:
+                print(
+                    f"- {status['file_name']}: {status['status']} "
+                    f"(chunk 数: {status['chunk_count']})"
+                )
             print("\n命中的资料片段:")
             for chunk in result["retrieved_chunks"]:
                 print(
                     f"- {chunk['file_name']} "
-                    f"({chunk['chunk_start']}, {chunk['chunk_end']})"
+                    f"[chunk_index={chunk['chunk_index']}] "
+                    f"({chunk['chunk_start']}, {chunk['chunk_end']}) "
+                    f"distance={chunk['distance']:.4f}"
                 )
             print(f"\nAgent(QA): {result['answer']}")
+            continue
+
+        if user_input.startswith("/v1 "):
+            question = user_input[4:].strip()
+            if not question:
+                print("请在 /v1 后面补充问题。")
+                continue
+
+            try:
+                result = agent.run_agent_v1(question)
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"Agent v1 执行失败：{exc}")
+                continue
+
+            print(f"\nAgent v1 路由意图: {result['intent']}")
+            print(f"路由原因: {result['reason']}")
+
+            if result["result_type"] == "json":
+                print("\nAgent v1(JSON):")
+                print(json.dumps(result["result"], ensure_ascii=False, indent=2))
+                continue
+
+            if result["result_type"] == "knowledge_qa":
+                qa_result = result["result"]
+                print("\n本次选中的知识点文件:")
+                for file_name in qa_result["selected_notes"]:
+                    print(f"- {file_name}")
+                print("\n索引状态:")
+                for status in qa_result["index_statuses"]:
+                    print(
+                        f"- {status['file_name']}: {status['status']} "
+                        f"(chunk 数: {status['chunk_count']})"
+                    )
+                print("\n命中的资料片段:")
+                for chunk in qa_result["retrieved_chunks"]:
+                    print(
+                        f"- {chunk['file_name']} "
+                        f"[chunk_index={chunk['chunk_index']}] "
+                        f"({chunk['chunk_start']}, {chunk['chunk_end']}) "
+                        f"distance={chunk['distance']:.4f}"
+                    )
+                print(f"\nAgent v1(QA): {qa_result['answer']}")
+                continue
+
+            if result["result_type"] == "tool_agent":
+                tool_result = result["result"]
+                print("\nTool Calling 步骤:")
+                for step in tool_result["steps"]:
+                    print(f"- 第 {step['step']} 步: {step['tool_name']} {step['arguments']}")
+                    print(f"  决策原因: {step['reason']}")
+                print(f"\nAgent v1(Tool Agent): {tool_result['answer']}")
+                continue
+
+            print(f"\nAgent v1: {result['result']}")
             continue
 
         if user_input == "/notes":

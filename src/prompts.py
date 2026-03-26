@@ -92,6 +92,12 @@ def render_react_agent_prompt(
     )
 
 
+def render_agent_v1_router_prompt(user_input: str) -> str:
+    """生成 Agent v1 统一入口做能力路由时使用的提示词。"""
+    template = _load_prompt_file("agent_v1_router_prompt.txt")
+    return template.format(user_input=user_input)
+
+
 def render_knowledge_qa_prompt(question: str, context: str) -> str:
     """生成主项目知识点问答使用的提示词。"""
     return f"""

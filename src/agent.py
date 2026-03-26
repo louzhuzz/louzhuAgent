@@ -4,6 +4,7 @@ from typing import Any
 
 from langchain_openai import ChatOpenAI
 
+from agent_v1 import AgentV1Service
 from config import Settings
 from langchain_helpers import to_langchain_messages
 from knowledge_qa import KnowledgeQARequest, KnowledgeQAService
@@ -11,6 +12,7 @@ from output_parsers import parse_json_output, parse_text_output
 from prompts import (
     Message,
     build_chat_messages,
+    render_agent_v1_router_prompt,
     render_knowledge_qa_prompt,
     load_system_prompt,
     render_react_agent_prompt,
@@ -54,6 +56,16 @@ class LearningAgent:
             api_key=settings.api_key,
             base_url=settings.base_url,
             embedding_model=settings.embedding_model,
+            chroma_persist_directory=settings.chroma_persist_directory,
+        )
+        self.agent_v1_service = AgentV1Service(
+            invoke_json=self._invoke_json,
+            render_router_prompt=render_agent_v1_router_prompt,
+            create_study_plan=self.create_study_plan,
+            answer_knowledge_question=self.answer_knowledge_question,
+            create_task_breakdown=self.create_task_breakdown,
+            run_tool_calling_agent=self.run_tool_calling_agent,
+            reply=self.reply,
         )
 
     def _build_messages(self, user_input: str) -> list[Message]:
@@ -148,6 +160,10 @@ class LearningAgent:
         result = self.knowledge_qa_service.answer(request)
         self._save_turn(f"/qa {request.question}", str(result["answer"]))
         return result
+
+    def run_agent_v1(self, user_input: str) -> dict[str, Any]:
+        """运行主项目的统一入口，让系统先判断意图再路由到对应能力。"""
+        return self.agent_v1_service.handle(user_input)
 
     def list_notes_tool(self) -> list[str]:
         """执行列出知识点文件的本地工具。"""

@@ -1,0 +1,61 @@
+{
+  "embedding_model": "ep-20260321210135-z8855",
+  "chunk_size": 500,
+  "chunk_overlap": 80,
+  "files": {
+    "13-输出解析器.md": {
+      "file_hash": "56504eb0ac9d4a77f579d744ca688f0fefc98bff2618531b79fcaf7ecf598a8f",
+      "doc_ids": [
+        "13--md-56504eb0ac9d-0",
+        "13--md-56504eb0ac9d-1",
+        "13--md-56504eb0ac9d-2",
+        "13--md-56504eb0ac9d-3",
+        "13--md-56504eb0ac9d-4",
+        "13--md-56504eb0ac9d-5",
+        "13--md-56504eb0ac9d-6",
+        "13--md-56504eb0ac9d-7"
+      ],
+      "chunk_count": 8,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "08-结构化输出.md": {
+      "file_hash": "b471f6dd221e3fc84477d9b6199b578b96daa77423d346da45319d40246d2b33",
+      "doc_ids": [
+        "08--md-b471f6dd221e-0",
+        "08--md-b471f6dd221e-1",
+        "08--md-b471f6dd221e-2",
+        "08--md-b471f6dd221e-3",
+        "08--md-b471f6dd221e-4",
+        "08--md-b471f6dd221e-5",
+        "08--md-b471f6dd221e-6",
+        "08--md-b471f6dd221e-7",
+        "08--md-b471f6dd221e-8",
+        "08--md-b471f6dd221e-9"
+      ],
+      "chunk_count": 10,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "36-Embedding缓存与ChromaDB持久化知识库.md": {
+      "file_hash": "7774afe93aea69ac4a4eaa0e93337cee368808abfac33ae5dff7274e48b0ca90",
+      "doc_ids": [
+        "36-embedding-chromadb-md-7774afe93aea-0",
+        "36-embedding-chromadb-md-7774afe93aea-1",
+        "36-embedding-chromadb-md-7774afe93aea-2",
+        "36-embedding-chromadb-md-7774afe93aea-3",
+        "36-embedding-chromadb-md-7774afe93aea-4",
+        "36-embedding-chromadb-md-7774afe93aea-5",
+        "36-embedding-chromadb-md-7774afe93aea-6",
+        "36-embedding-chromadb-md-7774afe93aea-7",
+        "36-embedding-chromadb-md-7774afe93aea-8",
+        "36-embedding-chromadb-md-7774afe93aea-9",
+        "36-embedding-chromadb-md-7774afe93aea-10",
+        "36-embedding-chromadb-md-7774afe93aea-11"
+      ],
+      "chunk_count": 12,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    }
+  }
+}

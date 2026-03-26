@@ -13,6 +13,7 @@ class Settings:
     base_url: str
     model: str
     embedding_model: str | None
+    chroma_persist_directory: str
 
 
 def load_settings() -> Settings:
@@ -20,6 +21,10 @@ def load_settings() -> Settings:
     base_url = os.getenv("ARK_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3").strip()
     model = os.getenv("ARK_MODEL", "").strip()
     embedding_model = os.getenv("ARK_EMBEDDING_MODEL", "").strip() or None
+    chroma_persist_directory = os.getenv(
+        "CHROMA_PERSIST_DIRECTORY",
+        "data/chroma/knowledge_qa",
+    ).strip()
 
     if not api_key:
         raise ValueError("缺少 ARK_API_KEY，请先配置 .env 文件。")
@@ -32,6 +37,7 @@ def load_settings() -> Settings:
         base_url=base_url,
         model=model,
         embedding_model=embedding_model,
+        chroma_persist_directory=chroma_persist_directory,
     )
 
 

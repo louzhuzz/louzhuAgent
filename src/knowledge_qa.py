@@ -2,10 +2,8 @@ import re
 from dataclasses import dataclass
 from typing import Callable
 
-from langchain_core.documents import Document
-from langchain_core.vectorstores import InMemoryVectorStore
-
 from ark_embeddings import ArkEmbeddings
+from chroma_knowledge_base import PersistentKnowledgeBase
 
 
 @dataclass
@@ -26,7 +24,7 @@ class NoteCandidate:
 
 
 class KnowledgeQAService:
-    """主项目里的“少量候选文件 + embedding 检索”知识点问答服务。"""
+    """主项目里的“少量候选文件 + embedding 检索 + ChromaDB 持久化”问答服务。"""
 
     def __init__(
         self,
@@ -37,8 +35,9 @@ class KnowledgeQAService:
         api_key: str,
         base_url: str,
         embedding_model: str,
+        chroma_persist_directory: str,
     ) -> None:
-        """保存工具函数、模型调用函数和 Prompt 渲染函数。"""
+        """保存工具函数、模型调用函数，并初始化本地持久化知识库。"""
         self.list_notes = list_notes
         self.read_note = read_note
         self.invoke_text = invoke_text
@@ -47,6 +46,12 @@ class KnowledgeQAService:
             api_key=api_key,
             base_url=base_url,
             model=embedding_model,
+        )
+        self.knowledge_base = PersistentKnowledgeBase(
+            read_note=read_note,
+            embeddings=self.embeddings,
+            persist_directory=chroma_persist_directory,
+            embedding_model=embedding_model,
         )
 
     def _extract_query_terms(self, text: str) -> set[str]:
@@ -105,85 +110,51 @@ class KnowledgeQAService:
         candidates.sort(key=lambda item: (item.score, item.file_name), reverse=True)
         return candidates[: request.max_notes]
 
-    def _split_note_to_documents(self, file_name: str, content: str) -> list[Document]:
-        """把单篇笔记切成少量 chunk，便于候选范围内做 embedding 检索。"""
-        chunk_size = 500
-        chunk_overlap = 80
-        chunks: list[Document] = []
-        start = 0
-
-        while start < len(content):
-            end = min(start + chunk_size, len(content))
-            chunk_text = content[start:end].strip()
-            if chunk_text:
-                chunks.append(
-                    Document(
-                        page_content=chunk_text,
-                        metadata={
-                            "file_name": file_name,
-                            "chunk_start": start,
-                            "chunk_end": end,
-                        },
-                    )
-                )
-            if end >= len(content):
-                break
-            start = max(end - chunk_overlap, start + 1)
-
-        return chunks
-
-    def build_candidate_documents(self, candidates: list[NoteCandidate]) -> list[Document]:
-        """只对少量候选知识点文件构造文档片段。"""
-        documents: list[Document] = []
-        for candidate in candidates:
-            note_content = self.read_note(candidate.file_name)
-            documents.extend(self._split_note_to_documents(candidate.file_name, note_content))
-        return documents
-
     def retrieve_context(
         self,
         request: KnowledgeQARequest,
         candidates: list[NoteCandidate],
-    ) -> tuple[str, list[Document]]:
-        """只对候选文件做 embedding 和向量检索，并返回命中的资料片段。"""
-        documents = self.build_candidate_documents(candidates)
-        if not documents:
-            raise ValueError("候选知识点文件为空，无法执行问答。")
-
-        vector_store = InMemoryVectorStore(self.embeddings)
-        vector_store.add_documents(documents)
-        results = vector_store.similarity_search_with_score(
-            request.question,
-            k=request.max_chunks,
+    ) -> tuple[str, list[dict[str, object]], list[dict[str, object]]]:
+        """只在候选文件范围内执行持久化检索，并返回命中片段与缓存状态。"""
+        results, index_statuses = self.knowledge_base.search(
+            query=request.question,
+            file_names=[candidate.file_name for candidate in candidates],
+            per_file_k=max(2, request.max_chunks),
+            final_k=request.max_chunks,
         )
 
-        retrieved_docs = [document for document, _ in results]
         parts: list[str] = []
-        for index, (document, score) in enumerate(results, start=1):
+        retrieved_chunks: list[dict[str, object]] = []
+        for index, item in enumerate(results, start=1):
+            document = item["document"]
+            distance = item["distance"]
             file_name = document.metadata.get("file_name", "unknown")
             parts.append(
-                f"[资料 {index}] 文件: {file_name} | score={score:.4f}\n"
+                f"[资料 {index}] 文件: {file_name} | distance={distance:.4f}\n"
                 f"{document.page_content}"
             )
-        return "\n\n".join(parts), retrieved_docs
+            retrieved_chunks.append(
+                {
+                    "file_name": file_name,
+                    "chunk_index": document.metadata.get("chunk_index"),
+                    "chunk_start": document.metadata.get("chunk_start"),
+                    "chunk_end": document.metadata.get("chunk_end"),
+                    "distance": distance,
+                }
+            )
+        return "\n\n".join(parts), retrieved_chunks, index_statuses
 
     def answer(self, request: KnowledgeQARequest) -> dict[str, object]:
-        """执行一次“少量候选文件 + embedding 检索”的知识点问答。"""
+        """执行一次“少量候选文件 + embedding 缓存 + ChromaDB 检索”的问答。"""
         validated_request = self._validate_request(request)
         candidates = self.select_notes(validated_request)
-        context, retrieved_docs = self.retrieve_context(validated_request, candidates)
+        context, retrieved_chunks, index_statuses = self.retrieve_context(validated_request, candidates)
         prompt = self.render_prompt(validated_request.question, context)
         answer = self.invoke_text(prompt, 0.2)
         return {
             "selected_notes": [candidate.file_name for candidate in candidates],
-            "retrieved_chunks": [
-                {
-                    "file_name": document.metadata.get("file_name", "unknown"),
-                    "chunk_start": document.metadata.get("chunk_start"),
-                    "chunk_end": document.metadata.get("chunk_end"),
-                }
-                for document in retrieved_docs
-            ],
+            "retrieved_chunks": retrieved_chunks,
+            "index_statuses": index_statuses,
             "context": context,
             "answer": answer,
         }
