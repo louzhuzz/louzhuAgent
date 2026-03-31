@@ -44,6 +44,34 @@ class AgentV1Service:
             "general_chat",
         }
 
+    def _parse_study_plan_input(self, rewritten_input: str) -> StudyPlanRequest:
+        """把路由层给出的学习计划输入尽量稳妥地转成请求对象。
+
+        这里不能只依赖严格的 `/plan` 风格格式，因为路由模型有时会返回：
+        - 只有主题
+        - 不完整的 `A | B | C | D`
+        - 或者把中文说明误塞到“天数”位置
+
+        所以先尝试走标准解析；失败后再退回到“只保留主题 + 默认参数”的兜底方案。
+        """
+        try:
+            return parse_study_plan_request(rewritten_input)
+        except ValueError:
+            topic = rewritten_input.split("|", 1)[0].strip()
+            if not topic:
+                raise ValueError("学习计划主题不能为空。")
+            return StudyPlanRequest(topic=topic)
+
+    def _parse_task_breakdown_input(self, rewritten_input: str) -> TaskBreakdownRequest:
+        """把路由层给出的任务拆解输入稳妥地转成请求对象。"""
+        try:
+            return parse_task_breakdown_request(rewritten_input)
+        except ValueError:
+            goal = rewritten_input.split("|", 1)[0].strip()
+            if not goal:
+                raise ValueError("任务拆解目标不能为空。")
+            return TaskBreakdownRequest(goal=goal)
+
     def _validate_user_input(self, user_input: str) -> str:
         """校验统一入口收到的用户输入。"""
         cleaned = user_input.strip()
@@ -79,7 +107,7 @@ class AgentV1Service:
         decision = self._make_decision(cleaned_input)
 
         if decision.intent == "study_plan":
-            request = parse_study_plan_request(decision.rewritten_input)
+            request = self._parse_study_plan_input(decision.rewritten_input)
             result = self.create_study_plan(request)
             return {
                 "intent": decision.intent,
@@ -100,7 +128,7 @@ class AgentV1Service:
             }
 
         if decision.intent == "task_breakdown":
-            request = parse_task_breakdown_request(decision.rewritten_input)
+            request = self._parse_task_breakdown_input(decision.rewritten_input)
             result = self.create_task_breakdown(request)
             return {
                 "intent": decision.intent,

@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-03-31T15:16:59",
+  "total_cases": 5,
+  "passed_cases": 5,
+  "pass_rate": 1.0,
+  "cases": [
+    {
+      "case_id": "qa_output_parser",
+      "mode": "qa",
+      "input_text": "什么是输出解析器，它在 LangChain 学习路径里有什么作用？",
+      "passed": true,
+      "selected_notes": [
+        "13-输出解析器.md",
+        "00-学习路线指导.md",
+        "35-个人学习助理-Agent-v1-整合版.md"
+      ],
+      "expected_notes": [
+        "13-输出解析器.md"
+      ],
+      "note_hit": true,
+      "keyword_coverage": 1.0,
+      "answer_preview": "### 核心回答\n#### 1. 什么是输出解析器\n输出解析器本质上是**把模型原始输出转换成业务真正需要/能消费的数据格式的一层独立代码**，核心职责就是完成模型输出到业务可用数据的转换[资料1][资料2]。\n\n#### 2. 它在LangChain学习路径里的作用\n- 它是后续多个LangChain核心内容的直接前置基础，是整个Agent管道里非常关键的核心层，不是无关的辅助细节[资料1]。\n"
+    },
+    {
+      "case_id": "qa_tool_schema",
+      "mode": "qa",
+      "input_text": "工具 schema 有什么作用？",
+      "passed": true,
+      "selected_notes": [
+        "28-工具Schema与参数约束.md",
+        "29-工具型学习助手.md",
+        "27-第一个工具函数.md"
+      ],
+      "expected_notes": [
+        "28-工具Schema与参数约束.md"
+      ],
+      "note_hit": true,
+      "keyword_coverage": 0.6667,
+      "answer_preview": "### 直接回答\n工具Schema可以简单理解为**工具的参数说明书**，是Agent工具系统的核心基础设施，核心作用如下：\n1. 为调用方提供工具调用规范：明确工具名称、工具功能、参数结构（包含参数类型、必填项要求等信息），让调用方（比如大模型）清楚知道该如何调用工具[资料1][资料4]。\n2. 为执行层提供参数校验依据：在工具执行前统一检查调用合法性，可以判断参数是否缺失、类型是否正确、是否存"
+    },
+    {
+      "case_id": "v1_study_plan",
+      "mode": "v1",
+      "input_text": "我要学习通信原理",
+      "passed": true,
+      "intent": "study_plan",
+      "expected_intent": "study_plan",
+      "intent_match": true,
+      "result_type": "json",
+      "expected_result_type": "json",
+      "result_type_match": true,
+      "selected_notes": [],
+      "expected_notes": [],
+      "note_hit": true,
+      "keyword_coverage": 1.0,
+      "answer_preview": "{\"topic\": \"通信原理\", \"current_level\": \"零基础\", \"goal\": \"完成系统入门并输出可验证的学习成果\", \"target_level\": \"掌握通信原理核心基础概念，理清通信系统整体框架，能区分常见通信类型，输出可验证的入门学习成果\", \"days\": [{\"day\": 1, \"goal\": \"建立通信系统的整体认知，搞懂核心基础定义\", \"tasks\": [\""
+    },
+    {
+      "case_id": "v1_knowledge_qa",
+      "mode": "v1",
+      "input_text": "什么是输出解析器？",
+      "passed": true,
+      "intent": "knowledge_qa",
+      "expected_intent": "knowledge_qa",
+      "intent_match": true,
+      "result_type": "knowledge_qa",
+      "expected_result_type": "knowledge_qa",
+      "result_type_match": true,
+      "selected_notes": [
+        "13-输出解析器.md",
+        "08-结构化输出.md",
+        "39-评测体系.md"
+      ],
+      "expected_notes": [
+        "13-输出解析器.md"
+      ],
+      "note_hit": true,
+      "keyword_coverage": 1.0,
+      "answer_preview": "### 直接回答\n输出解析器本质上就是**把模型原始输出转换成业务真正需要的数据格式的一层独立代码**，核心职责是将模型原始输出处理为业务能够直接消费使用的数据 [资料1][资料2]。\n\n---\n### 补充关键知识点\n1. 常见处理场景\n在实际开发中，输出解析器通常处理两类典型输出：普通文本输出、结构化JSON输出；针对JSON输出，还需要专门处理模型常返回的「带代码块包裹的JSON」，一般会先"
+    },
+    {
+      "case_id": "v1_task_breakdown",
+      "mode": "v1",
+      "input_text": "帮我把做一个个人学习助理拆成执行步骤",
+      "passed": true,
+      "intent": "task_breakdown",
+      "expected_intent": "task_breakdown",
+      "intent_match": true,
+      "result_type": "json",
+      "expected_result_type": "json",
+      "result_type_match": true,
+      "selected_notes": [],
+      "expected_notes": [],
+      "note_hit": true,
+      "keyword_coverage": 0.6667,
+      "answer_preview": "{\"goal\": \"完成可运行的基础版个人学习助理开发\", \"current_level\": \"零基础\", \"available_days\": 7, \"output_style\": \"拆解为可执行步骤\", \"summary\": \"从零基础出发，遵循「需求梳理→环境准备→设计→开发→测试→优化→成果输出」的节奏，每天完成一个阶段任务，优先保证7天内产出可用的基础版本，不堆砌非必要功能，适配零基础的学"
+    }
+  ]
+}

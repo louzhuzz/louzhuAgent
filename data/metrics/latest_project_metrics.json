@@ -1,0 +1,40 @@
+{
+  "eval_metrics": {
+    "generated_at": "2026-03-31T15:16:59",
+    "total_cases": 5,
+    "passed_cases": 5,
+    "pass_rate": 1.0,
+    "qa_case_count": 2,
+    "qa_note_hit_rate": 1.0,
+    "v1_case_count": 3,
+    "v1_intent_match_rate": 1.0,
+    "v1_result_type_match_rate": 1.0
+  },
+  "runtime_metrics": {
+    "total_events": 4,
+    "total_sessions": 1,
+    "user_input_count": 2,
+    "completion_event_count": 2,
+    "error_event_count": 0,
+    "top_events": [
+      [
+        "user_input_received",
+        2
+      ],
+      [
+        "tool_agent_completed",
+        1
+      ],
+      [
+        "react_completed",
+        1
+      ]
+    ]
+  },
+  "resume_bullets": [
+    "构建主项目最小回归评测体系，当前固定样例 5 条，最近一次通过率 100.00%。",
+    "围绕知识点问答建立检索命中指标，当前 `qa` 样例的预期笔记命中率为 100.00%。",
+    "围绕 Agent v1 建立统一入口路由评测，当前意图匹配率为 100.00%，结果类型匹配率为 100.00%。",
+    "本地结构化日志已累计记录 4 条事件、2 次用户输入，便于后续继续沉淀调用规模、错误分布和性能指标。"
+  ]
+}

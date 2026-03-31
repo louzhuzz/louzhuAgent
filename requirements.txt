@@ -3,5 +3,8 @@ python-dotenv>=1.0.1
 langchain-core>=0.3.79
 langchain-openai>=0.3.35
 langchain-chroma>=0.1.2
+fastapi>=0.115.0
+uvicorn>=0.34.0
+langsmith>=0.1.125
 numpy>=1.26.0
 volcengine-python-sdk[ark]

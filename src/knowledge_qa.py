@@ -115,7 +115,10 @@ class KnowledgeQAService:
         request: KnowledgeQARequest,
         candidates: list[NoteCandidate],
     ) -> tuple[str, list[dict[str, object]], list[dict[str, object]]]:
-        """只在候选文件范围内执行持久化检索，并返回命中片段与缓存状态。"""
+        """只在候选文件范围内执行持久化检索，并返回命中片段与缓存状态。
+
+        如果当前候选文件里没有找到相关片段，这里返回空上下文，由上层决定如何兜底。
+        """
         results, index_statuses = self.knowledge_base.search(
             query=request.question,
             file_names=[candidate.file_name for candidate in candidates],
@@ -149,6 +152,14 @@ class KnowledgeQAService:
         validated_request = self._validate_request(request)
         candidates = self.select_notes(validated_request)
         context, retrieved_chunks, index_statuses = self.retrieve_context(validated_request, candidates)
+        if not retrieved_chunks:
+            return {
+                "selected_notes": [candidate.file_name for candidate in candidates],
+                "retrieved_chunks": [],
+                "index_statuses": index_statuses,
+                "context": "",
+                "answer": "当前候选知识点中没有检索到足够相关的资料，请尝试把问题问得更具体，或先用 /read 查看相关笔记。",
+            }
         prompt = self.render_prompt(validated_request.question, context)
         answer = self.invoke_text(prompt, 0.2)
         return {

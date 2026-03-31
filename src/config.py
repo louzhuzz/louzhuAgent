@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _env_bool(name: str, default: bool = False) -> bool:
+    """把环境变量解析成布尔值。"""
+    raw = os.getenv(name, str(default)).strip().lower()
+    return raw in {"1", "true", "yes", "on"}
+
+
 @dataclass
 class Settings:
     api_key: str
@@ -14,6 +20,9 @@ class Settings:
     model: str
     embedding_model: str | None
     chroma_persist_directory: str
+    log_directory: str
+    langsmith_tracing: bool
+    langsmith_project: str
 
 
 def load_settings() -> Settings:
@@ -25,6 +34,9 @@ def load_settings() -> Settings:
         "CHROMA_PERSIST_DIRECTORY",
         "data/chroma/knowledge_qa",
     ).strip()
+    log_directory = os.getenv("LOG_DIRECTORY", "data/logs").strip()
+    langsmith_tracing = _env_bool("LANGSMITH_TRACING", default=False)
+    langsmith_project = os.getenv("LANGSMITH_PROJECT", "personal-learning-agent").strip()
 
     if not api_key:
         raise ValueError("缺少 ARK_API_KEY，请先配置 .env 文件。")
@@ -38,6 +50,9 @@ def load_settings() -> Settings:
         model=model,
         embedding_model=embedding_model,
         chroma_persist_directory=chroma_persist_directory,
+        log_directory=log_directory,
+        langsmith_tracing=langsmith_tracing,
+        langsmith_project=langsmith_project,
     )
 
 

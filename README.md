@@ -106,3 +106,84 @@ python examples/rerank_intro.py
 - `/study 问题`：自动选择一个知识点文件并基于该文件回答
 - `/agent 问题`：让模型自己决定是否调用工具
 - `/react 问题`：运行显式 Thought/Action/Observation 的 ReAct Agent
+
+当前运行日志默认写到：
+
+```text
+data/logs/agent_runtime.jsonl
+```
+
+如果你想开启 LangSmith tracing，请在 `.env` 中补充：
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=你的LangSmith API Key
+LANGSMITH_PROJECT=personal-learning-agent
+```
+
+开启后，CLI 和网页端的请求链路都会进入 LangSmith。
+
+## 运行评测
+
+如果你想运行主项目当前内置的最小评测体系：
+
+```bash
+python src/run_evals.py
+```
+
+默认样例文件在：
+
+```text
+evals/agent_eval_cases.json
+```
+
+结果会写到：
+
+```text
+data/evals/latest_eval_report.json
+```
+
+## 导出项目指标摘要
+
+如果你想把“评测结果 + 运行日志”整理成更适合简历和项目包装的指标摘要：
+
+```bash
+python src/export_project_metrics.py
+```
+
+结果会写到：
+
+```text
+data/metrics/latest_project_metrics.json
+data/metrics/latest_project_metrics.md
+```
+
+## 网页对话端
+
+如果你想启动网页对话端，请先安装依赖：
+
+```bash
+pip install -r requirements.txt
+```
+
+然后运行：
+
+```bash
+uvicorn web_app:app --app-dir src --reload
+```
+
+浏览器打开：
+
+```text
+http://127.0.0.1:8000
+```
+
+网页端和命令行端共用同一套主项目运行逻辑，支持：
+
+- 普通聊天
+- `/qa`
+- `/plan`
+- `/breakdown`
+- `/v1`
+- `/agent`
+- `/react`

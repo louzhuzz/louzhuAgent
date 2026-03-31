@@ -1,0 +1,41 @@
+[
+  {
+    "case_id": "qa_output_parser",
+    "mode": "qa",
+    "input_text": "什么是输出解析器，它在 LangChain 学习路径里有什么作用？",
+    "expected_notes": ["13-输出解析器.md"],
+    "expected_keywords": ["结构化", "程序", "输出"]
+  },
+  {
+    "case_id": "qa_tool_schema",
+    "mode": "qa",
+    "input_text": "工具 schema 有什么作用？",
+    "expected_notes": ["28-工具Schema与参数约束.md"],
+    "expected_keywords": ["schema", "参数", "校验"]
+  },
+  {
+    "case_id": "v1_study_plan",
+    "mode": "v1",
+    "input_text": "我要学习通信原理",
+    "expected_intent": "study_plan",
+    "expected_result_type": "json",
+    "expected_keywords": ["topic", "days", "goal"]
+  },
+  {
+    "case_id": "v1_knowledge_qa",
+    "mode": "v1",
+    "input_text": "什么是输出解析器？",
+    "expected_intent": "knowledge_qa",
+    "expected_result_type": "knowledge_qa",
+    "expected_notes": ["13-输出解析器.md"],
+    "expected_keywords": ["结构化", "输出", "程序"]
+  },
+  {
+    "case_id": "v1_task_breakdown",
+    "mode": "v1",
+    "input_text": "帮我把做一个个人学习助理拆成执行步骤",
+    "expected_intent": "task_breakdown",
+    "expected_result_type": "json",
+    "expected_keywords": ["steps", "goal", "risk_tips"]
+  }
+]

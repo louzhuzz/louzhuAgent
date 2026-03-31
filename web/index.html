@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人学习助理 Agent</title>
+    <style>
+      :root {
+        --bg: #f2efe8;
+        --panel: #fffdf8;
+        --line: #d8cfbf;
+        --text: #1e1a16;
+        --muted: #6d6458;
+        --accent: #1f5c4a;
+        --accent-soft: #dcebe6;
+        --user: #ece4d4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(31, 92, 74, 0.08), transparent 28%),
+          linear-gradient(180deg, #f7f3ec 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+
+      .hero {
+        padding: 18px 20px;
+        border: 1px solid var(--line);
+        background: linear-gradient(135deg, #f9f6ef 0%, #eef5f1 100%);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(62, 52, 36, 0.08);
+      }
+
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 10px 26px rgba(48, 37, 20, 0.06);
+      }
+
+      .sidebar {
+        padding: 18px;
+      }
+
+      .sidebar h2,
+      .chat-header h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+
+      .tips {
+        display: grid;
+        gap: 10px;
+      }
+
+      .tip-btn {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #fbf8f2;
+        border-radius: 12px;
+        padding: 12px;
+        text-align: left;
+        cursor: pointer;
+        color: var(--text);
+      }
+
+      .tip-btn:hover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .chat-panel {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 72vh;
+      }
+
+      .chat-header {
+        padding: 18px 20px 0;
+      }
+
+      .chat-header p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .messages {
+        padding: 20px;
+        overflow: auto;
+        display: grid;
+        gap: 14px;
+      }
+
+      .msg {
+        border-radius: 16px;
+        padding: 14px 16px;
+        max-width: 88%;
+        white-space: pre-wrap;
+        line-height: 1.7;
+      }
+
+      .msg.user {
+        justify-self: end;
+        background: var(--user);
+      }
+
+      .msg.agent {
+        justify-self: start;
+        background: #f9f8f4;
+        border: 1px solid #e5ddcf;
+      }
+
+      .msg .label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .composer {
+        border-top: 1px solid var(--line);
+        padding: 16px;
+      }
+
+      .composer form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      textarea {
+        resize: none;
+        min-height: 84px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        padding: 14px;
+        font: inherit;
+        background: #fffefb;
+      }
+
+      button[type="submit"] {
+        border: none;
+        background: var(--accent);
+        color: white;
+        border-radius: 14px;
+        padding: 0 22px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      button[type="submit"]:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      pre {
+        margin: 0;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .chat-panel {
+          min-height: 65vh;
+        }
+
+        .msg {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <h1>个人学习助理 Agent</h1>
+        <p>这是当前主项目的网页对话端。你可以直接聊天，也可以输入 <code>/plan</code>、<code>/qa</code>、<code>/v1</code>、<code>/react</code> 等命令。</p>
+      </section>
+
+      <section class="layout">
+        <aside class="card sidebar">
+          <h2>快捷示例</h2>
+          <div class="tips">
+            <button class="tip-btn" data-prompt="/v1 给我一个 5 天 LangChain 学习计划">/v1 给我一个 5 天 LangChain 学习计划</button>
+            <button class="tip-btn" data-prompt="/qa 什么是输出解析器？">/qa 什么是输出解析器？</button>
+            <button class="tip-btn" data-prompt="/breakdown 做一个个人学习助理 | 零基础 | 14 | 可执行步骤">/breakdown 做一个个人学习助理 | 零基础 | 14 | 可执行步骤</button>
+            <button class="tip-btn" data-prompt="/react 请读取和工具 schema 相关的知识点并总结">/react 请读取和工具 schema 相关的知识点并总结</button>
+            <button class="tip-btn" data-prompt="/clear">/clear</button>
+          </div>
+        </aside>
+
+        <section class="card chat-panel">
+          <header class="chat-header">
+            <h2>对话面板</h2>
+            <p>网页端和命令行端共用同一套主项目运行逻辑。</p>
+          </header>
+
+          <section id="messages" class="messages"></section>
+
+          <footer class="composer">
+            <form id="chat-form">
+              <textarea id="message-input" placeholder="输入问题，或者直接输入 /qa、/plan、/v1 等命令"></textarea>
+              <button id="send-btn" type="submit">发送</button>
+            </form>
+          </footer>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("chat-form");
+      const input = document.getElementById("message-input");
+      const messages = document.getElementById("messages");
+      const sendBtn = document.getElementById("send-btn");
+
+      function addMessage(role, content) {
+        const wrapper = document.createElement("article");
+        wrapper.className = `msg ${role}`;
+
+        const label = document.createElement("span");
+        label.className = "label";
+        label.textContent = role === "user" ? "你" : "Agent";
+
+        const body = document.createElement("pre");
+        body.textContent = content;
+
+        wrapper.append(label, body);
+        messages.appendChild(wrapper);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function formatResult(result) {
+        if (result.kind === "message") {
+          return result.message;
+        }
+
+        if (result.kind === "json") {
+          return `${result.title}:\n${JSON.stringify(result.data, null, 2)}`;
+        }
+
+        if (result.kind === "notes") {
+          return `${result.title}:\n${result.data.map((item) => `- ${item}`).join("\n")}`;
+        }
+
+        if (result.kind === "content") {
+          return `${result.title}\n\n${result.data}`;
+        }
+
+        if (result.kind === "tool_result") {
+          if (typeof result.data === "string") {
+            return `${result.title}:\n${result.data}`;
+          }
+          return `${result.title}:\n${JSON.stringify(result.data, null, 2)}`;
+        }
+
+        if (result.kind === "study") {
+          return `本次自动选择的知识点文件: ${result.data.file_name}\n\n${result.title}: ${result.data.answer}`;
+        }
+
+        if (result.kind === "tool_agent") {
+          const lines = ["Tool Calling 步骤:"];
+          for (const step of result.data.steps) {
+            lines.push(`- 第 ${step.step} 步: ${step.tool_name} ${JSON.stringify(step.arguments)}`);
+            lines.push(`  决策原因: ${step.reason}`);
+          }
+          lines.push(`\n${result.title}: ${result.data.answer}`);
+          return lines.join("\n");
+        }
+
+        if (result.kind === "react") {
+          const lines = ["ReAct 步骤:"];
+          for (const step of result.data.steps) {
+            lines.push(`- 第 ${step.step} 步`);
+            lines.push(`  Thought: ${step.thought}`);
+            lines.push(`  Action: ${step.tool_name} ${JSON.stringify(step.arguments)}`);
+          }
+          lines.push(`\n${result.title}: ${result.data.answer}`);
+          return lines.join("\n");
+        }
+
+        if (result.kind === "knowledge_qa") {
+          const lines = ["本次选中的知识点文件:"];
+          result.data.selected_notes.forEach((name) => lines.push(`- ${name}`));
+          lines.push("\n索引状态:");
+          result.data.index_statuses.forEach((status) => {
+            lines.push(`- ${status.file_name}: ${status.status} (chunk 数: ${status.chunk_count})`);
+          });
+          lines.push("\n命中的资料片段:");
+          result.data.retrieved_chunks.forEach((chunk) => {
+            lines.push(`- ${chunk.file_name} [chunk_index=${chunk.chunk_index}] (${chunk.chunk_start}, ${chunk.chunk_end}) distance=${chunk.distance.toFixed(4)}`);
+          });
+          lines.push(`\n${result.title}: ${result.data.answer}`);
+          return lines.join("\n");
+        }
+
+        if (result.kind === "agent_v1") {
+          const data = result.data;
+          const lines = [
+            `Agent v1 路由意图: ${data.intent}`,
+            `路由原因: ${data.reason}`,
+          ];
+
+          if (data.result_type === "json") {
+            lines.push(`\nAgent v1(JSON):\n${JSON.stringify(data.result, null, 2)}`);
+            return lines.join("\n");
+          }
+
+          if (data.result_type === "knowledge_qa") {
+            lines.push("\n本次选中的知识点文件:");
+            data.result.selected_notes.forEach((name) => lines.push(`- ${name}`));
+            lines.push("\n索引状态:");
+            data.result.index_statuses.forEach((status) => {
+              lines.push(`- ${status.file_name}: ${status.status} (chunk 数: ${status.chunk_count})`);
+            });
+            lines.push("\n命中的资料片段:");
+            data.result.retrieved_chunks.forEach((chunk) => {
+              lines.push(`- ${chunk.file_name} [chunk_index=${chunk.chunk_index}] (${chunk.chunk_start}, ${chunk.chunk_end}) distance=${chunk.distance.toFixed(4)}`);
+            });
+            lines.push(`\nAgent v1(QA): ${data.result.answer}`);
+            return lines.join("\n");
+          }
+
+          if (data.result_type === "tool_agent") {
+            lines.push("\nTool Calling 步骤:");
+            data.result.steps.forEach((step) => {
+              lines.push(`- 第 ${step.step} 步: ${step.tool_name} ${JSON.stringify(step.arguments)}`);
+              lines.push(`  决策原因: ${step.reason}`);
+            });
+            lines.push(`\nAgent v1(Tool Agent): ${data.result.answer}`);
+            return lines.join("\n");
+          }
+
+          lines.push(`\nAgent v1: ${data.result}`);
+          return lines.join("\n");
+        }
+
+        if (result.kind === "text") {
+          return `${result.title}: ${result.data}`;
+        }
+
+        return JSON.stringify(result, null, 2);
+      }
+
+      async function sendMessage(message) {
+        addMessage("user", message);
+        sendBtn.disabled = true;
+
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message }),
+          });
+
+          const result = await response.json();
+          addMessage("agent", formatResult(result));
+        } catch (error) {
+          addMessage("agent", `请求失败：${error.message}`);
+        } finally {
+          sendBtn.disabled = false;
+          input.focus();
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const message = input.value.trim();
+        if (!message) return;
+        input.value = "";
+        await sendMessage(message);
+      });
+
+      document.querySelectorAll(".tip-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          input.value = button.dataset.prompt || "";
+          input.focus();
+        });
+      });
+
+      addMessage("agent", "网页对话端已启动。你可以直接聊天，也可以输入 /qa、/plan、/v1、/react 等命令。");
+    </script>
+  </body>
+</html>

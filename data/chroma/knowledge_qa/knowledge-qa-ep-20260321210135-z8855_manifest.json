@@ -56,6 +56,130 @@
       "chunk_count": 12,
       "chunk_size": 500,
       "chunk_overlap": 80
+    },
+    "00-学习路线指导.md": {
+      "file_hash": "22861c46fe061d4d16a3c62c27d05a5dda8cc93bb9e6f06e3feca55042ddf1f7",
+      "doc_ids": [
+        "00--md-22861c46fe06-0",
+        "00--md-22861c46fe06-1",
+        "00--md-22861c46fe06-2",
+        "00--md-22861c46fe06-3",
+        "00--md-22861c46fe06-4",
+        "00--md-22861c46fe06-5",
+        "00--md-22861c46fe06-6",
+        "00--md-22861c46fe06-7",
+        "00--md-22861c46fe06-8"
+      ],
+      "chunk_count": 9,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "35-个人学习助理-Agent-v1-整合版.md": {
+      "file_hash": "a080783de08caad3ef0754b82d080980439c1c7f7c5e01bda8c0aba947b27b4e",
+      "doc_ids": [
+        "35---agent-v1--md-a080783de08c-0",
+        "35---agent-v1--md-a080783de08c-1",
+        "35---agent-v1--md-a080783de08c-2",
+        "35---agent-v1--md-a080783de08c-3",
+        "35---agent-v1--md-a080783de08c-4",
+        "35---agent-v1--md-a080783de08c-5",
+        "35---agent-v1--md-a080783de08c-6",
+        "35---agent-v1--md-a080783de08c-7",
+        "35---agent-v1--md-a080783de08c-8",
+        "35---agent-v1--md-a080783de08c-9",
+        "35---agent-v1--md-a080783de08c-10",
+        "35---agent-v1--md-a080783de08c-11",
+        "35---agent-v1--md-a080783de08c-12",
+        "35---agent-v1--md-a080783de08c-13"
+      ],
+      "chunk_count": 14,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "28-工具Schema与参数约束.md": {
+      "file_hash": "e919cd02dbb90831204b62ceae13a9c1f13aed4cf20aebd356814513779517d4",
+      "doc_ids": [
+        "28--schema-md-e919cd02dbb9-0",
+        "28--schema-md-e919cd02dbb9-1",
+        "28--schema-md-e919cd02dbb9-2",
+        "28--schema-md-e919cd02dbb9-3",
+        "28--schema-md-e919cd02dbb9-4",
+        "28--schema-md-e919cd02dbb9-5",
+        "28--schema-md-e919cd02dbb9-6",
+        "28--schema-md-e919cd02dbb9-7",
+        "28--schema-md-e919cd02dbb9-8",
+        "28--schema-md-e919cd02dbb9-9",
+        "28--schema-md-e919cd02dbb9-10",
+        "28--schema-md-e919cd02dbb9-11",
+        "28--schema-md-e919cd02dbb9-12"
+      ],
+      "chunk_count": 13,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "29-工具型学习助手.md": {
+      "file_hash": "da93ae5b09f95771f7795bff6f55efffe954222cf0b445569425f9bb33616b1e",
+      "doc_ids": [
+        "29--md-da93ae5b09f9-0",
+        "29--md-da93ae5b09f9-1",
+        "29--md-da93ae5b09f9-2",
+        "29--md-da93ae5b09f9-3",
+        "29--md-da93ae5b09f9-4",
+        "29--md-da93ae5b09f9-5",
+        "29--md-da93ae5b09f9-6",
+        "29--md-da93ae5b09f9-7",
+        "29--md-da93ae5b09f9-8",
+        "29--md-da93ae5b09f9-9",
+        "29--md-da93ae5b09f9-10",
+        "29--md-da93ae5b09f9-11",
+        "29--md-da93ae5b09f9-12",
+        "29--md-da93ae5b09f9-13",
+        "29--md-da93ae5b09f9-14",
+        "29--md-da93ae5b09f9-15",
+        "29--md-da93ae5b09f9-16",
+        "29--md-da93ae5b09f9-17",
+        "29--md-da93ae5b09f9-18",
+        "29--md-da93ae5b09f9-19"
+      ],
+      "chunk_count": 20,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "27-第一个工具函数.md": {
+      "file_hash": "d0647cfc50922205e1a8f8f69e9ff082223fe865e1f8f092832d56ccafe22bcb",
+      "doc_ids": [
+        "27--md-d0647cfc5092-0",
+        "27--md-d0647cfc5092-1",
+        "27--md-d0647cfc5092-2",
+        "27--md-d0647cfc5092-3",
+        "27--md-d0647cfc5092-4",
+        "27--md-d0647cfc5092-5",
+        "27--md-d0647cfc5092-6",
+        "27--md-d0647cfc5092-7",
+        "27--md-d0647cfc5092-8",
+        "27--md-d0647cfc5092-9",
+        "27--md-d0647cfc5092-10"
+      ],
+      "chunk_count": 11,
+      "chunk_size": 500,
+      "chunk_overlap": 80
+    },
+    "39-评测体系.md": {
+      "file_hash": "92219291cb6ff09fdf22cef59aabdf99f4ed0beb7b324957ca4ab971c2af277c",
+      "doc_ids": [
+        "39--md-92219291cb6f-0",
+        "39--md-92219291cb6f-1",
+        "39--md-92219291cb6f-2",
+        "39--md-92219291cb6f-3",
+        "39--md-92219291cb6f-4",
+        "39--md-92219291cb6f-5",
+        "39--md-92219291cb6f-6",
+        "39--md-92219291cb6f-7",
+        "39--md-92219291cb6f-8"
+      ],
+      "chunk_count": 9,
+      "chunk_size": 500,
+      "chunk_overlap": 80
     }
   }
 }

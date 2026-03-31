@@ -1,14 +1,16 @@
 import re
 import json
+import time
 from typing import Any
 
 from langchain_openai import ChatOpenAI
+from openai import APIConnectionError, APIError, APITimeoutError, RateLimitError
 
 from agent_v1 import AgentV1Service
 from config import Settings
 from langchain_helpers import to_langchain_messages
 from knowledge_qa import KnowledgeQARequest, KnowledgeQAService
-from output_parsers import parse_json_output, parse_text_output
+from output_parsers import OutputParserError, parse_json_output, parse_text_output
 from prompts import (
     Message,
     build_chat_messages,
@@ -27,6 +29,8 @@ from tools import execute_tool_call, get_tool_schemas, list_notes, read_note
 
 
 class LearningAgent:
+    """主项目核心 Agent，对外暴露聊天、问答、任务拆解和工具调用等能力。"""
+
     def __init__(self, settings: Settings):
         """初始化聊天模型、系统提示词和会话历史。"""
         self.settings = settings
@@ -35,6 +39,8 @@ class LearningAgent:
             api_key=settings.api_key,
             base_url=settings.base_url,
             temperature=0.7,
+            request_timeout=30,
+            max_retries=0,
         )
         if not settings.embedding_model:
             raise ValueError("缺少 ARK_EMBEDDING_MODEL，主项目知识点问答需要真实 embedding 配置。")
@@ -120,16 +126,49 @@ class LearningAgent:
         self.history.append({"role": "assistant", "content": answer})
 
     def _invoke_text(self, user_input: str, temperature: float) -> str:
-        """调用聊天模型，并把返回结果解析成普通文本。"""
-        response = self.model.bind(temperature=temperature).invoke(
-            to_langchain_messages(self._build_messages(user_input))
-        )
-        return parse_text_output(response.content)
+        """调用聊天模型，并把返回结果解析成普通文本。
+
+        这里会对常见瞬时异常做有限重试，避免网络抖动或短暂限流直接打崩主链路。
+        """
+        messages = to_langchain_messages(self._build_messages(user_input))
+        retryable_errors = (APIConnectionError, APITimeoutError, RateLimitError, APIError)
+        max_attempts = 3
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = self.model.bind(temperature=temperature).invoke(messages)
+                return parse_text_output(response.content)
+            except retryable_errors as exc:
+                if attempt == max_attempts:
+                    raise RuntimeError(f"模型服务暂时不可用：{exc}") from exc
+                time.sleep(0.8 * attempt)
+            except Exception as exc:
+                raise RuntimeError(f"模型调用失败：{exc}") from exc
+
+        raise RuntimeError("模型调用失败：未知异常。")
 
     def _invoke_json(self, user_input: str, temperature: float) -> dict[str, Any]:
-        """调用模型并把返回结果解析成 JSON 对象。"""
+        """调用模型并把返回结果解析成 JSON 对象。
+
+        这里额外做了一层“自动修复重试”：
+        1. 先按正常结构化任务去生成 JSON
+        2. 如果模型返回了近似 JSON 但格式有错误，再让模型只做 JSON 修复
+
+        这样可以降低评测或批量任务里因为一次格式波动而整条链路中断的概率。
+        """
         raw_text = self._invoke_text(user_input, temperature=temperature)
-        return parse_json_output(raw_text)
+        try:
+            return parse_json_output(raw_text)
+        except OutputParserError:
+            repair_prompt = (
+                "你是一个 JSON 修复器。"
+                "下面会给你一段本来想返回 JSON、但格式不合法的文本。"
+                "请在不改变原始语义的前提下，把它修复成一个合法 JSON 对象。"
+                "只输出最终 JSON，不要输出解释，不要加 Markdown 代码块。\n\n"
+                f"待修复文本：\n{raw_text}"
+            )
+            repaired_text = self._invoke_text(repair_prompt, temperature=0.0)
+            return parse_json_output(repaired_text)
 
     def reply(self, user_input: str) -> str:
         """执行一轮普通对话。"""
@@ -273,7 +312,10 @@ class LearningAgent:
 
             tool_name = str(decision.get("tool_name", "")).strip()
             arguments = decision.get("arguments", {})
-            result = self.execute_tool(tool_name, arguments)
+            try:
+                result = self.execute_tool(tool_name, arguments)
+            except Exception as exc:
+                result = f"TOOL_ERROR: {exc}"
             steps.append(
                 {
                     "step": step_number,
@@ -326,7 +368,10 @@ class LearningAgent:
 
             tool_name = str(decision.get("tool_name", "")).strip()
             arguments = decision.get("arguments", {})
-            observation = self.execute_tool(tool_name, arguments)
+            try:
+                observation = self.execute_tool(tool_name, arguments)
+            except Exception as exc:
+                observation = f"TOOL_ERROR: {exc}"
             steps.append(
                 {
                     "step": step_number,
